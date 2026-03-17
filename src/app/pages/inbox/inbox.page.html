@@ -1,0 +1,52 @@
+<div class="inbox-page">
+  <div class="inbox-page__header">
+    <h1 class="inbox-page__title">Inbox</h1>
+    <span class="inbox-page__count">{{ store.inboxCount() }} pendientes</span>
+  </div>
+
+  @if (store.inboxCount() === 0) {
+    <!-- Estado de paz mental -->
+    <div class="inbox-page__empty-container">
+      <app-empty-state 
+        iconName="coffee" 
+        title="Tu mente está como el agua" 
+        description="No hay nada pendiente de procesar. Disfruta el momento o presiona Cmd+K para capturar algo nuevo."
+      />
+    </div>
+  } @else {
+    <!-- Lista de elementos sin procesar -->
+    <ul class="inbox-list">
+      @for (item of store.items(); track item.id) {
+        <li class="inbox-item">
+          <!-- Item core info -->
+          <div class="inbox-item__content">
+            <p class="inbox-item__text">{{ item.text }}</p>
+            
+            <div class="inbox-item__meta">
+              <!-- Relative time formatting -->
+              <time class="inbox-item__time">{{ item.createdAt | relativeTime }}</time>
+              
+              <!-- Ghost Tags inline -->
+              @if (item.ghostTags.length > 0) {
+                <div class="inbox-item__tags">
+                  <app-ghost-tags [tags]="item.ghostTags" />
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Acciones de item (eliminar temporalmente para MVP) -->
+          <div class="inbox-item__actions">
+            <!-- Icon is explicitly an action here -->
+            <app-button 
+              variant="icon-only" 
+              iconName="check" 
+              ariaLabel="Procesar y eliminar captura"
+              (click)="deleteItem(item.id)">
+            </app-button>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</div>
