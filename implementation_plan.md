@@ -1,6 +1,6 @@
 # Fase 1: Sistema de Captura — Plan de Implementación
 
-El objetivo de esta fase es construir el núcleo del sistema de captura de AppGTD: un "buzón" omnipresente que permita al usuario vaciar su mente de forma inmediata. Cubre las 5 HDUs definidas en [fase1.md](file:///Users/jesuscabezaacero/Desktop/JesusC/Software/hsa/water/water-ang/.antigravity/fase1.md).
+El objetivo de esta fase es construir el núcleo del sistema de captura de Water: un "buzón" omnipresente que permita al usuario vaciar su mente de forma inmediata. Cubre las 5 HDUs definidas en [fase1.md](file:///Users/jesuscabezaacero/Desktop/JesusC/Software/hsa/water/water-ang/.antigravity/fase1.md).
 
 ## User Review Required
 
@@ -28,7 +28,7 @@ Configurar el sistema de diseño "Minimal-Robust" y el layout principal responsi
 
 #### [NEW] [app-shell.ts](file:///Users/jesuscabezaacero/Desktop/JesusC/Software/hsa/water/water-ang/src/app/layout/app-shell.ts)
 - Componente standalone que envuelve `<router-outlet>`.
-- Layout responsivo: header mínimo con título "AppGTD" + badge de inbox, área principal centrada.
+- Layout responsivo: header mínimo con título "Water" + badge de inbox, área principal centrada.
 - Host del Omni-FAB (posición fija en zona del pulgar para móvil).
 
 #### [MODIFY] [app.ts](file:///Users/jesuscabezaacero/Desktop/JesusC/Software/hsa/water/water-ang/src/app/app.ts)
