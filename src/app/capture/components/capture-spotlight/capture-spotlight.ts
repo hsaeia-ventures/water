@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { CaptureUiService } from '../../services/capture-ui.service';
 import { CaptureInputComponent } from '../capture-input/capture-input';
 import { BackdropComponent } from '../../../shared/components/backdrop/backdrop';
+import { CaptureStore } from '../../services/capture.store';
 
 @Component({
   selector: 'app-capture-spotlight',
@@ -14,6 +15,7 @@ import { BackdropComponent } from '../../../shared/components/backdrop/backdrop'
 })
 export class CaptureSpotlightComponent {
   public captureUi = inject(CaptureUiService);
+  private store = inject(CaptureStore);
   
   protected isVisible = signal(false);
 
@@ -24,9 +26,9 @@ export class CaptureSpotlightComponent {
     });
   }
 
-  public handleCapture(text: string): void {
-    console.log('[Water] Desktop Capture:', text);
-    // In future: push to InboxStore
+  public async handleCapture(text: string): Promise<void> {
+    await this.store.addCapture(text);
+    console.log('[Water] Desktop Capture saved offline');
     this.captureUi.close();
   }
 

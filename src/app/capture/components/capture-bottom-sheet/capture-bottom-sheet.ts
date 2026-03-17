@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { CaptureUiService } from '../../services/capture-ui.service';
 import { CaptureInputComponent } from '../capture-input/capture-input';
 import { BackdropComponent } from '../../../shared/components/backdrop/backdrop';
+import { CaptureStore } from '../../services/capture.store';
 
 @Component({
   selector: 'app-capture-bottom-sheet',
@@ -14,6 +15,7 @@ import { BackdropComponent } from '../../../shared/components/backdrop/backdrop'
 })
 export class CaptureBottomSheetComponent {
   public captureUi = inject(CaptureUiService);
+  private store = inject(CaptureStore);
   
   // Track visibility for the CSS transition
   protected isVisible = signal(false);
@@ -26,9 +28,9 @@ export class CaptureBottomSheetComponent {
     });
   }
 
-  public handleCapture(text: string): void {
-    console.log('[Water] Mobile Capture:', text);
-    // In future: push to InboxStore
+  public async handleCapture(text: string): Promise<void> {
+    await this.store.addCapture(text);
+    console.log('[Water] Mobile Capture saved offline');
     this.captureUi.close();
   }
 
