@@ -1,0 +1,16 @@
+<!-- Solo renderizamos en dispositivo móvil (aunque el CSS también lo asegurará visualmente) -->
+@if (platform.isMobile()) {
+  <button 
+    class="omni-fab"
+    [class.omni-fab--active]="captureUi.isOpen()"
+    (click)="onFabClick()" 
+    aria-label="Abrir panel de captura"
+    type="button"
+  >
+    <div class="omni-fab__inner">
+      <app-icon name="plus" [size]="28" class="omni-fab__icon omni-fab__icon--plus" />
+      <!-- Un icono secundario que transiciona al rotar sería agradable (ej: crear a cerrar), 
+           pero CSS transform rotará inteligentemente el plus en 45 grados para que parezca un 'X' (cerrar) -->
+    </div>
+  </button>
+}

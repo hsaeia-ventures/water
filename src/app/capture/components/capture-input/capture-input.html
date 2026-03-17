@@ -1,0 +1,24 @@
+<div class="capture-input-container">
+  <textarea
+    #textareaRef
+    appAutoFocus
+    [autoFocusDelay]="100"
+    class="capture-input__field"
+    placeholder="¿Qué tienes en mente? (Cmd+Enter o Enter para capturar)"
+    rows="1"
+    [ngModel]="text()"
+    (input)="onInput($event)"
+    (keydown)="onKeydown($event)"
+    aria-label="Entrada de captura"
+  ></textarea>
+
+  <div class="capture-input__actions">
+    <app-button 
+      variant="icon-only" 
+      iconName="send" 
+      [disabled]="!text().trim()"
+      (click)="submit()" 
+      [ariaLabel]="'Enviar captura'">
+    </app-button>
+  </div>
+</div>

@@ -20,6 +20,7 @@ export type ButtonVariant = 'primary' | 'ghost' | 'icon-only';
       [type]="type()"
       [disabled]="disabled()"
       [class]="buttonClasses()"
+      [attr.aria-label]="ariaLabel()"
       [attr.aria-busy]="loading()">
       @if (loading()) {
         <span class="btn-spinner"></span>
@@ -133,6 +134,9 @@ export class ButtonComponent {
 
   /** Nombre del ícono (opcional) */
   readonly iconName = input<string | undefined>(undefined);
+
+  /** Etiqueta ARIA (opcional) */
+  readonly ariaLabel = input<string | undefined>(undefined);
 
   /** Tamaño del ícono (derivado de la variante) */
   readonly iconSize = computed(() => this.variant() === 'icon-only' ? 20 : 16);

@@ -1,0 +1,22 @@
+<!-- Usamos app-backdrop para el fondo oscurecido -->
+<app-backdrop 
+  [visible]="isVisible()" 
+  (backdropClick)="close()">
+</app-backdrop>
+
+<div 
+  class="bottom-sheet" 
+  [class.bottom-sheet--open]="isVisible()"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Panel de captura rápida">
+  
+  <div class="bottom-sheet__handle"></div>
+  
+  <div class="bottom-sheet__content">
+    <!-- El componente de input re-usable -->
+    @if (isVisible()) {
+      <app-capture-input (capture)="handleCapture($event)" />
+    }
+  </div>
+</div>

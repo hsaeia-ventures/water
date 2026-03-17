@@ -1,0 +1,67 @@
+.omni-fab {
+  position: fixed;
+  bottom: 1.5rem; /* ~ Espacio del pulgar derecho */
+  right: 1.5rem;
+  z-index: 50; /* Por encima de todo pero debajo de modals superiores si hubo */
+  
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: var(--radius-full);
+  border: none;
+  background: linear-gradient(135deg, var(--color-accent-teal), rgba(20, 184, 166, 0.8));
+  color: var(--color-surface-base); /* Logo interior oscuro */
+  box-shadow: 0 10px 25px -5px rgba(20, 184, 166, 0.4), 
+              0 8px 10px -6px rgba(20, 184, 166, 0.2);
+  
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Reset button styles */
+  padding: 0;
+  margin: 0;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+
+  /* Organic animation scale hover + press */
+  transition: transform var(--transition-normal) var(--ease-organic),
+              box-shadow var(--transition-fast) var(--ease-smooth);
+}
+
+.omni-fab:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 15px 30px -5px rgba(20, 184, 166, 0.45);
+}
+
+.omni-fab:active {
+  transform: translateY(1px) scale(0.95);
+  box-shadow: 0 5px 15px -3px rgba(20, 184, 166, 0.3);
+}
+
+.omni-fab__inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--transition-normal) var(--ease-elastic);
+  will-change: transform;
+}
+
+/* 
+ * Micro-interacción: 
+ * Cuando se activa, rotamos el signo + en 135deg
+ * ¡Se transforma orgánicamente en una X para cerrar!
+ */
+.omni-fab--active .omni-fab__inner {
+  transform: rotate(135deg);
+}
+
+/*
+ * Fallback CSS: Si la señal fálló o no está isMobile(), en @media min-width desktop ocultamos
+ * de forma nativa.
+ */
+@media (min-width: 768px) {
+  .omni-fab {
+    display: none !important;
+  }
+}

@@ -1,0 +1,36 @@
+.bottom-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 60; /* Encima del backdrop (z=50) */
+  
+  background-color: var(--color-surface-base);
+  border-top-left-radius: var(--radius-xl);
+  border-top-right-radius: var(--radius-xl);
+  border-top: 1px solid var(--color-border-subtle);
+  padding: 1rem 1rem 2rem;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
+
+  /* Animación CSS para deslizar de abajo a arriba */
+  transform: translateY(100%);
+  transition: transform var(--transition-normal) var(--ease-organic);
+  will-change: transform;
+}
+
+.bottom-sheet--open {
+  transform: translateY(0);
+}
+
+.bottom-sheet__handle {
+  width: 2.5rem;
+  height: 0.25rem;
+  background-color: var(--color-border-default);
+  border-radius: var(--radius-full);
+  margin: 0 auto 1rem;
+}
+
+.bottom-sheet__content {
+  /* Espacio para que el teclado virtual no corte el input */
+  padding-bottom: env(safe-area-inset-bottom, 1rem); 
+}

@@ -1,0 +1,43 @@
+.capture-input-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 0.75rem;
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--transition-fast) var(--ease-smooth),
+              box-shadow var(--transition-fast) var(--ease-smooth);
+}
+
+.capture-input-container:focus-within {
+  border-color: var(--color-accent-teal);
+  box-shadow: 0 0 0 2px rgba(20, 184, 166, 0.2);
+}
+
+.capture-input__field {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-size: 1.125rem;
+  line-height: 1.5;
+  resize: none;
+  min-height: 1.5rem; /* ~1 row */
+  max-height: 30vh; /* max ~30% viewport height before scrolling */
+  outline: none;
+  padding: 0.25rem 0; /* Align with button vertically if 1 line */
+}
+
+.capture-input__field::placeholder {
+  color: var(--color-text-muted);
+}
+
+.capture-input__actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding-bottom: 0.125rem; /* Optical alignment with bottom of textarea text */
+}
