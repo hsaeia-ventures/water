@@ -6,6 +6,7 @@ import { ButtonComponent } from '../shared/components/button/button';
 import { OmniFabComponent } from '../capture/components/omni-fab/omni-fab';
 import { CaptureBottomSheetComponent } from '../capture/components/capture-bottom-sheet/capture-bottom-sheet';
 import { CaptureSpotlightComponent } from '../capture/components/capture-spotlight/capture-spotlight';
+import { InboxBadgeComponent } from '../capture/components/inbox-badge/inbox-badge';
 
 @Component({
   selector: 'app-shell',
@@ -17,7 +18,8 @@ import { CaptureSpotlightComponent } from '../capture/components/capture-spotlig
     IconComponent, 
     OmniFabComponent,
     CaptureBottomSheetComponent,
-    CaptureSpotlightComponent
+    CaptureSpotlightComponent,
+    InboxBadgeComponent
   ],
   templateUrl: './app-shell.html',
   styleUrl: './app-shell.css',
