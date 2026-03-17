@@ -47,7 +47,7 @@ export class CaptureInputComponent {
           }
         }
       }
-    }, { allowSignalWrites: true });
+    });
   }
 
   public onInput(event: Event): void {
