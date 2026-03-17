@@ -1,64 +1,51 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { render, screen } from '@testing-library/angular';
+import userEvent from '@testing-library/user-event';
 import { BackdropComponent } from './backdrop';
 
 describe('BackdropComponent', () => {
-  let fixture: ComponentFixture<BackdropComponent>;
+  const user = userEvent.setup();
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [BackdropComponent],
-    }).compileComponents();
+  it('should not render overlay when not visible', async () => {
+    await render(BackdropComponent, {
+      inputs: { visible: false },
+    });
 
-    fixture = TestBed.createComponent(BackdropComponent);
-    fixture.componentRef.setInput('visible', false);
-    fixture.detectChanges();
+    expect(screen.queryByRole('presentation')).not.toBeInTheDocument();
   });
 
-  it('should create', () => {
-    expect(fixture.componentInstance).toBeTruthy();
+  it('should render overlay when visible', async () => {
+    await render(BackdropComponent, {
+      inputs: { visible: true },
+    });
+
+    expect(screen.getByRole('presentation')).toBeInTheDocument();
   });
 
-  it('should not render overlay when visible is false', () => {
-    const overlay = fixture.nativeElement.querySelector('.backdrop');
-    expect(overlay).toBeFalsy();
+  it('should emit backdropClick when the overlay is clicked', async () => {
+    const onBackdropClick = vi.fn();
+    await render(BackdropComponent, {
+      inputs: { visible: true },
+      on: { backdropClick: onBackdropClick },
+    });
+
+    await user.click(screen.getByRole('presentation'));
+
+    expect(onBackdropClick).toHaveBeenCalledTimes(1);
   });
 
-  it('should render overlay when visible is true', () => {
+  it('should show and hide based on visible input', async () => {
+    const { fixture } = await render(BackdropComponent, {
+      inputs: { visible: false },
+    });
+
+    expect(screen.queryByRole('presentation')).not.toBeInTheDocument();
+
     fixture.componentRef.setInput('visible', true);
     fixture.detectChanges();
-
-    const overlay = fixture.nativeElement.querySelector('.backdrop');
-    expect(overlay).toBeTruthy();
-  });
-
-  it('should emit backdropClick when overlay is clicked', () => {
-    fixture.componentRef.setInput('visible', true);
-    fixture.detectChanges();
-
-    let clicked = false;
-    fixture.componentInstance.backdropClick.subscribe(() => (clicked = true));
-
-    const overlay = fixture.nativeElement.querySelector('.backdrop');
-    overlay.click();
-
-    expect(clicked).toBe(true);
-  });
-
-  it('should hide overlay when visible changes to false', () => {
-    fixture.componentRef.setInput('visible', true);
-    fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('.backdrop')).toBeTruthy();
+    expect(screen.getByRole('presentation')).toBeInTheDocument();
 
     fixture.componentRef.setInput('visible', false);
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('.backdrop')).toBeFalsy();
-  });
-
-  it('should have role="presentation" for accessibility', () => {
-    fixture.componentRef.setInput('visible', true);
-    fixture.detectChanges();
-
-    const overlay = fixture.nativeElement.querySelector('.backdrop');
-    expect(overlay.getAttribute('role')).toBe('presentation');
+    expect(screen.queryByRole('presentation')).not.toBeInTheDocument();
   });
 });

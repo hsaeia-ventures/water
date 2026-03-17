@@ -1,54 +1,59 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { render, screen } from '@testing-library/angular';
 import { EmptyStateComponent } from './empty-state';
 
 describe('EmptyStateComponent', () => {
-  let fixture: ComponentFixture<EmptyStateComponent>;
+  it('should display the title text', async () => {
+    await render(EmptyStateComponent, {
+      inputs: { title: 'Tu mente está como el agua' },
+    });
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [EmptyStateComponent],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(EmptyStateComponent);
-    fixture.componentRef.setInput('title', 'Tu bandeja está vacía');
-    fixture.componentRef.setInput('iconName', 'inbox');
-    fixture.componentRef.setInput('subtitle', 'Captura tu primera idea');
-    fixture.detectChanges();
+    expect(screen.getByText('Tu mente está como el agua')).toBeInTheDocument();
   });
 
-  it('should create', () => {
-    expect(fixture.componentInstance).toBeTruthy();
+  it('should display subtitle when provided', async () => {
+    await render(EmptyStateComponent, {
+      inputs: {
+        title: 'Bandeja vacía',
+        subtitle: 'Captura tu primera idea con Cmd+K',
+      },
+    });
+
+    expect(screen.getByText('Captura tu primera idea con Cmd+K')).toBeInTheDocument();
   });
 
-  it('should display title', () => {
-    const title = fixture.nativeElement.querySelector('.empty-state__title');
-    expect(title.textContent).toContain('Tu bandeja está vacía');
+  it('should not display subtitle when not provided', async () => {
+    await render(EmptyStateComponent, {
+      inputs: { title: 'Bandeja vacía' },
+    });
+
+    expect(screen.queryByText('Captura tu primera idea con Cmd+K')).not.toBeInTheDocument();
   });
 
-  it('should display subtitle when provided', () => {
-    const subtitle = fixture.nativeElement.querySelector('.empty-state__subtitle');
-    expect(subtitle).toBeTruthy();
-    expect(subtitle.textContent).toContain('Captura tu primera idea');
+  it('should render icon when iconName is provided', async () => {
+    const { container } = await render(EmptyStateComponent, {
+      inputs: { title: 'Vacío', iconName: 'inbox' },
+    });
+
+    expect(container.querySelector('app-icon')).toBeInTheDocument();
   });
 
-  it('should hide subtitle when not provided', () => {
-    fixture.componentRef.setInput('subtitle', undefined);
-    fixture.detectChanges();
+  it('should not render icon when iconName is not provided', async () => {
+    const { container } = await render(EmptyStateComponent, {
+      inputs: { title: 'Vacío' },
+    });
 
-    const subtitle = fixture.nativeElement.querySelector('.empty-state__subtitle');
-    expect(subtitle).toBeFalsy();
+    expect(container.querySelector('app-icon')).not.toBeInTheDocument();
   });
 
-  it('should display icon when iconName is provided', () => {
-    const icon = fixture.nativeElement.querySelector('app-icon');
-    expect(icon).toBeTruthy();
-  });
+  it('should render projected content', async () => {
+    await render(
+      `<app-empty-state title="Sin datos">
+        <p>Prueba de contenido proyectado</p>
+      </app-empty-state>`,
+      { imports: [EmptyStateComponent] }
+    );
 
-  it('should hide icon when iconName is not provided', () => {
-    fixture.componentRef.setInput('iconName', undefined);
-    fixture.detectChanges();
-
-    const icon = fixture.nativeElement.querySelector('app-icon');
-    expect(icon).toBeFalsy();
+    expect(screen.getByText('Sin datos')).toBeInTheDocument();
+    expect(screen.getByText('Prueba de contenido proyectado')).toBeInTheDocument();
   });
 });

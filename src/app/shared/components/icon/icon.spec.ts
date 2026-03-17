@@ -1,60 +1,53 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { render, screen } from '@testing-library/angular';
 import { IconComponent } from './icon';
 
 describe('IconComponent', () => {
-  let fixture: ComponentFixture<IconComponent>;
+  it('should render an SVG element', async () => {
+    await render(IconComponent, {
+      inputs: { name: 'plus' },
+    });
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [IconComponent],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(IconComponent);
-    fixture.componentRef.setInput('name', 'plus');
-    fixture.detectChanges();
+    const svg = document.querySelector('svg');
+    expect(svg).toBeInTheDocument();
+    expect(svg).toHaveAttribute('aria-hidden', 'true');
   });
 
-  it('should create', () => {
-    expect(fixture.componentInstance).toBeTruthy();
+  it('should set correct default size', async () => {
+    await render(IconComponent, {
+      inputs: { name: 'plus' },
+    });
+
+    const svg = document.querySelector('svg')!;
+    expect(svg).toHaveAttribute('width', '24');
+    expect(svg).toHaveAttribute('height', '24');
   });
 
-  it('should render SVG element', () => {
-    const svg = fixture.nativeElement.querySelector('svg');
-    expect(svg).toBeTruthy();
+  it('should use custom size', async () => {
+    await render(IconComponent, {
+      inputs: { name: 'plus', size: 20 },
+    });
+
+    const svg = document.querySelector('svg')!;
+    expect(svg).toHaveAttribute('width', '20');
+    expect(svg).toHaveAttribute('height', '20');
   });
 
-  it('should set correct default size attributes', () => {
-    const svg = fixture.nativeElement.querySelector('svg');
-    expect(svg.getAttribute('width')).toBe('24');
-    expect(svg.getAttribute('height')).toBe('24');
-  });
+  it('should render a valid path for a known icon', async () => {
+    await render(IconComponent, {
+      inputs: { name: 'send' },
+    });
 
-  it('should update size when input changes', () => {
-    fixture.componentRef.setInput('size', 20);
-    fixture.detectChanges();
-
-    const svg = fixture.nativeElement.querySelector('svg');
-    expect(svg.getAttribute('width')).toBe('20');
-    expect(svg.getAttribute('height')).toBe('20');
-  });
-
-  it('should render path for known icon', () => {
-    const path = fixture.nativeElement.querySelector('path');
-    expect(path).toBeTruthy();
-    expect(path.getAttribute('d')).toBeTruthy();
+    const path = document.querySelector('path')!;
+    expect(path).toBeInTheDocument();
     expect(path.getAttribute('d')!.length).toBeGreaterThan(0);
   });
 
-  it('should render empty path for unknown icon', () => {
-    fixture.componentRef.setInput('name', 'unknown-icon');
-    fixture.detectChanges();
+  it('should render empty path for an unknown icon', async () => {
+    await render(IconComponent, {
+      inputs: { name: 'nonexistent-icon' },
+    });
 
-    const path = fixture.nativeElement.querySelector('path');
-    expect(path.getAttribute('d')).toBe('');
-  });
-
-  it('should have aria-hidden on SVG', () => {
-    const svg = fixture.nativeElement.querySelector('svg');
-    expect(svg.getAttribute('aria-hidden')).toBe('true');
+    const path = document.querySelector('path')!;
+    expect(path).toHaveAttribute('d', '');
   });
 });

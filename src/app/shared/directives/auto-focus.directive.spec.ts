@@ -1,57 +1,43 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Component } from '@angular/core';
+import { render } from '@testing-library/angular';
 import { AutoFocusDirective } from './auto-focus.directive';
 
-@Component({
-  standalone: true,
-  imports: [AutoFocusDirective],
-  template: `<input id="test-input" appAutoFocus [autoFocusDelay]="delay" />`,
-})
-class TestHostComponent {
-  delay = 0;
-}
-
 describe('AutoFocusDirective', () => {
-  let fixture: ComponentFixture<TestHostComponent>;
-  let host: TestHostComponent;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [TestHostComponent],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(TestHostComponent);
-    host = fixture.componentInstance;
-  });
-
-  it('should create an instance', () => {
-    fixture.detectChanges();
-    const input = fixture.nativeElement.querySelector('#test-input');
-    expect(input).toBeTruthy();
-  });
-
-  it('should focus the element after init', async () => {
-    fixture.detectChanges();
+  it('should focus the input element after rendering', async () => {
+    await render('<input data-testid="focus-target" appAutoFocus />', {
+      imports: [AutoFocusDirective],
+    });
 
     // Wait for requestAnimationFrame
     await new Promise((resolve) => requestAnimationFrame(resolve));
 
-    const input = fixture.nativeElement.querySelector('#test-input');
-    expect(document.activeElement).toBe(input);
+    const input = document.querySelector('[data-testid="focus-target"]') as HTMLElement;
+    expect(input).toHaveFocus();
   });
 
   it('should delay focus when autoFocusDelay is set', async () => {
-    host.delay = 50;
-    fixture.detectChanges();
+    await render('<input data-testid="delayed-focus" appAutoFocus [autoFocusDelay]="50" />', {
+      imports: [AutoFocusDirective],
+    });
 
-    const input = fixture.nativeElement.querySelector('#test-input');
+    const input = document.querySelector('[data-testid="delayed-focus"]') as HTMLElement;
 
-    // Before delay, should NOT be focused
-    expect(document.activeElement).not.toBe(input);
+    // Should NOT be focused immediately
+    expect(input).not.toHaveFocus();
 
     // Wait for the delay + buffer
     await new Promise((resolve) => setTimeout(resolve, 100));
 
-    expect(document.activeElement).toBe(input);
+    expect(input).toHaveFocus();
+  });
+
+  it('should focus a textarea as well', async () => {
+    await render('<textarea data-testid="textarea-focus" appAutoFocus></textarea>', {
+      imports: [AutoFocusDirective],
+    });
+
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+
+    const textarea = document.querySelector('[data-testid="textarea-focus"]') as HTMLElement;
+    expect(textarea).toHaveFocus();
   });
 });

@@ -1,95 +1,106 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ButtonComponent, ButtonVariant } from './button';
+import { render, screen } from '@testing-library/angular';
+import userEvent from '@testing-library/user-event';
+import { ButtonComponent } from './button';
 
 describe('ButtonComponent', () => {
-  let fixture: ComponentFixture<ButtonComponent>;
+  const user = userEvent.setup();
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [ButtonComponent],
-    }).compileComponents();
+  it('should render a button with primary variant by default', async () => {
+    await render(ButtonComponent);
 
-    fixture = TestBed.createComponent(ButtonComponent);
-    fixture.detectChanges();
+    const button = screen.getByRole('button');
+    expect(button).toBeInTheDocument();
+    expect(button).toHaveClass('btn-primary');
   });
 
-  it('should create', () => {
-    const button = fixture.nativeElement.querySelector('button');
-    expect(button).toBeTruthy();
+  it('should render ghost variant', async () => {
+    await render(ButtonComponent, {
+      inputs: { variant: 'ghost' },
+    });
+
+    expect(screen.getByRole('button')).toHaveClass('btn-ghost');
   });
 
-  it('should apply primary class by default', () => {
-    const button = fixture.nativeElement.querySelector('button');
-    expect(button.classList.contains('btn-primary')).toBe(true);
+  it('should render icon-only variant with an icon', async () => {
+    await render(ButtonComponent, {
+      inputs: { variant: 'icon-only', iconName: 'plus' },
+    });
+
+    const button = screen.getByRole('button');
+    expect(button).toHaveClass('btn-icon-only');
+    expect(button.querySelector('svg')).toBeInTheDocument();
   });
 
-  it('should apply ghost class when variant is ghost', () => {
-    fixture.componentRef.setInput('variant', 'ghost');
-    fixture.detectChanges();
+  it('should be disabled when disabled input is true', async () => {
+    await render(ButtonComponent, {
+      inputs: { disabled: true },
+    });
 
-    const button = fixture.nativeElement.querySelector('button');
-    expect(button.classList.contains('btn-ghost')).toBe(true);
+    expect(screen.getByRole('button')).toBeDisabled();
   });
 
-  it('should apply icon-only class', () => {
-    fixture.componentRef.setInput('variant', 'icon-only');
-    fixture.componentRef.setInput('iconName', 'plus');
-    fixture.detectChanges();
+  it('should show a loading spinner when loading', async () => {
+    const { container } = await render(ButtonComponent, {
+      inputs: { loading: true },
+    });
 
-    const button = fixture.nativeElement.querySelector('button');
-    expect(button.classList.contains('btn-icon-only')).toBe(true);
+    expect(container.querySelector('.btn-spinner')).toBeInTheDocument();
+    expect(screen.getByRole('button')).toHaveAttribute('aria-busy', 'true');
   });
 
-  it('should be disabled when disabled input is true', () => {
-    fixture.componentRef.setInput('disabled', true);
-    fixture.detectChanges();
+  it('should not show spinner when not loading', async () => {
+    const { container } = await render(ButtonComponent, {
+      inputs: { loading: false },
+    });
 
-    const button: HTMLButtonElement = fixture.nativeElement.querySelector('button');
-    expect(button.disabled).toBe(true);
+    expect(container.querySelector('.btn-spinner')).not.toBeInTheDocument();
   });
 
-  it('should show spinner when loading', () => {
-    fixture.componentRef.setInput('loading', true);
-    fixture.detectChanges();
+  it('should render an icon when iconName is provided', async () => {
+    await render(ButtonComponent, {
+      inputs: { iconName: 'send' },
+    });
 
-    const spinner = fixture.nativeElement.querySelector('.btn-spinner');
-    expect(spinner).toBeTruthy();
+    const button = screen.getByRole('button');
+    expect(button.querySelector('svg')).toBeInTheDocument();
   });
 
-  it('should not show spinner when not loading', () => {
-    fixture.componentRef.setInput('loading', false);
-    fixture.detectChanges();
+  it('should not render an icon when iconName is not provided', async () => {
+    await render(ButtonComponent);
 
-    const spinner = fixture.nativeElement.querySelector('.btn-spinner');
-    expect(spinner).toBeFalsy();
+    const button = screen.getByRole('button');
+    expect(button.querySelector('svg')).not.toBeInTheDocument();
   });
 
-  it('should render icon when iconName is provided', () => {
-    fixture.componentRef.setInput('iconName', 'send');
-    fixture.detectChanges();
+  it('should have type="button" by default', async () => {
+    await render(ButtonComponent);
 
-    const icon = fixture.nativeElement.querySelector('app-icon');
-    expect(icon).toBeTruthy();
+    expect(screen.getByRole('button')).toHaveAttribute('type', 'button');
   });
 
-  it('should not render icon when iconName is undefined', () => {
-    fixture.componentRef.setInput('iconName', undefined);
-    fixture.detectChanges();
+  it('should be clickable when not disabled', async () => {
+    const clickSpy = vi.fn();
+    await render(ButtonComponent, {
+      inputs: { disabled: false },
+    });
 
-    const icon = fixture.nativeElement.querySelector('app-icon');
-    expect(icon).toBeFalsy();
+    const button = screen.getByRole('button');
+    button.addEventListener('click', clickSpy);
+    await user.click(button);
+
+    expect(clickSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('should have type="button" by default', () => {
-    const button: HTMLButtonElement = fixture.nativeElement.querySelector('button');
-    expect(button.type).toBe('button');
-  });
+  it('should not be clickable when disabled', async () => {
+    const clickSpy = vi.fn();
+    await render(ButtonComponent, {
+      inputs: { disabled: true },
+    });
 
-  it('should set aria-busy when loading', () => {
-    fixture.componentRef.setInput('loading', true);
-    fixture.detectChanges();
+    const button = screen.getByRole('button');
+    button.addEventListener('click', clickSpy);
+    await user.click(button);
 
-    const button = fixture.nativeElement.querySelector('button');
-    expect(button.getAttribute('aria-busy')).toBe('true');
+    expect(clickSpy).not.toHaveBeenCalled();
   });
 });

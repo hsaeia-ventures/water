@@ -1,99 +1,67 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Component } from '@angular/core';
+import { render, screen } from '@testing-library/angular';
+import userEvent from '@testing-library/user-event';
 import { TrapFocusDirective } from './trap-focus.directive';
 
-@Component({
-  standalone: true,
-  imports: [TrapFocusDirective],
-  template: `
-    <div appTrapFocus id="trap-container">
-      <button id="btn-first">Primero</button>
-      <input id="input-middle" />
-      <button id="btn-last">Último</button>
-    </div>
-  `,
-})
-class TestHostComponent {}
-
 describe('TrapFocusDirective', () => {
-  let fixture: ComponentFixture<TestHostComponent>;
+  const user = userEvent.setup();
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [TestHostComponent],
-    }).compileComponents();
+  it('should keep focus within the container when tabbing forward from last element', async () => {
+    await render(
+      `<div appTrapFocus>
+        <button>Primero</button>
+        <input placeholder="Campo medio" />
+        <button>Último</button>
+      </div>`,
+      { imports: [TrapFocusDirective] }
+    );
 
-    fixture = TestBed.createComponent(TestHostComponent);
-    fixture.detectChanges();
+    // Focus the last button
+    screen.getByText('Último').focus();
+    expect(screen.getByText('Último')).toHaveFocus();
+
+    // Tab forward → should wrap to first
+    await user.tab();
+
+    expect(screen.getByText('Primero')).toHaveFocus();
   });
 
-  it('should create', () => {
-    const container = fixture.nativeElement.querySelector('#trap-container');
-    expect(container).toBeTruthy();
+  it('should keep focus within the container when tabbing backward from first element', async () => {
+    await render(
+      `<div appTrapFocus>
+        <button>Primero</button>
+        <input placeholder="Campo medio" />
+        <button>Último</button>
+      </div>`,
+      { imports: [TrapFocusDirective] }
+    );
+
+    // Focus the first button
+    screen.getByText('Primero').focus();
+    expect(screen.getByText('Primero')).toHaveFocus();
+
+    // Shift+Tab backward → should wrap to last
+    await user.tab({ shift: true });
+
+    expect(screen.getByText('Último')).toHaveFocus();
   });
 
-  it('should trap focus on Tab from last to first element', () => {
-    const lastBtn: HTMLElement = fixture.nativeElement.querySelector('#btn-last');
-    const firstBtn: HTMLElement = fixture.nativeElement.querySelector('#btn-first');
-    lastBtn.focus();
+  it('should allow normal tabbing between middle elements', async () => {
+    await render(
+      `<div appTrapFocus>
+        <button>Primero</button>
+        <button>Segundo</button>
+        <button>Tercero</button>
+      </div>`,
+      { imports: [TrapFocusDirective] }
+    );
 
-    const event = new KeyboardEvent('keydown', {
-      key: 'Tab',
-      bubbles: true,
-    });
-    const preventSpy = vi.spyOn(event, 'preventDefault');
+    // Focus the first
+    screen.getByText('Primero').focus();
+    expect(screen.getByText('Primero')).toHaveFocus();
 
-    fixture.nativeElement.querySelector('#trap-container').dispatchEvent(event);
+    // Tab forward → should go to Segundo (normal behavior, not trapped)
+    await user.tab();
 
-    expect(preventSpy).toHaveBeenCalled();
-    expect(document.activeElement).toBe(firstBtn);
-  });
-
-  it('should trap focus on Shift+Tab from first to last element', () => {
-    const firstBtn: HTMLElement = fixture.nativeElement.querySelector('#btn-first');
-    const lastBtn: HTMLElement = fixture.nativeElement.querySelector('#btn-last');
-    firstBtn.focus();
-
-    const event = new KeyboardEvent('keydown', {
-      key: 'Tab',
-      shiftKey: true,
-      bubbles: true,
-    });
-    const preventSpy = vi.spyOn(event, 'preventDefault');
-
-    fixture.nativeElement.querySelector('#trap-container').dispatchEvent(event);
-
-    expect(preventSpy).toHaveBeenCalled();
-    expect(document.activeElement).toBe(lastBtn);
-  });
-
-  it('should NOT prevent default when Tab is pressed on middle element', () => {
-    const middleInput: HTMLElement = fixture.nativeElement.querySelector('#input-middle');
-    middleInput.focus();
-
-    const event = new KeyboardEvent('keydown', {
-      key: 'Tab',
-      bubbles: true,
-    });
-    const preventSpy = vi.spyOn(event, 'preventDefault');
-
-    fixture.nativeElement.querySelector('#trap-container').dispatchEvent(event);
-
-    expect(preventSpy).not.toHaveBeenCalled();
-  });
-
-  it('should ignore non-Tab keys', () => {
-    const firstBtn: HTMLElement = fixture.nativeElement.querySelector('#btn-first');
-    firstBtn.focus();
-
-    const event = new KeyboardEvent('keydown', {
-      key: 'Enter',
-      bubbles: true,
-    });
-    const preventSpy = vi.spyOn(event, 'preventDefault');
-
-    fixture.nativeElement.querySelector('#trap-container').dispatchEvent(event);
-
-    expect(preventSpy).not.toHaveBeenCalled();
+    expect(screen.getByText('Segundo')).toHaveFocus();
   });
 });

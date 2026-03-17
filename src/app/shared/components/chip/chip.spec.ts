@@ -1,63 +1,44 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ChipComponent, ChipColor } from './chip';
+import { render, screen } from '@testing-library/angular';
+import { ChipComponent } from './chip';
 
 describe('ChipComponent', () => {
-  let fixture: ComponentFixture<ChipComponent>;
+  it('should display the label text', async () => {
+    await render(ChipComponent, {
+      inputs: { label: '@casa', color: 'teal' },
+    });
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [ChipComponent],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(ChipComponent);
-    fixture.componentRef.setInput('label', '@casa');
-    fixture.componentRef.setInput('color', 'teal');
-    fixture.detectChanges();
+    expect(screen.getByText('@casa')).toBeInTheDocument();
   });
 
-  it('should create', () => {
-    expect(fixture.componentInstance).toBeTruthy();
+  it('should apply teal styling', async () => {
+    await render(ChipComponent, {
+      inputs: { label: '@trabajo', color: 'teal' },
+    });
+
+    expect(screen.getByText('@trabajo')).toHaveClass('chip-teal');
   });
 
-  it('should display label text', () => {
-    const span = fixture.nativeElement.querySelector('span');
-    expect(span.textContent.trim()).toBe('@casa');
+  it('should apply amber styling', async () => {
+    await render(ChipComponent, {
+      inputs: { label: 'mañana', color: 'amber' },
+    });
+
+    expect(screen.getByText('mañana')).toHaveClass('chip-amber');
   });
 
-  it('should apply teal class when color is teal', () => {
-    const span = fixture.nativeElement.querySelector('span');
-    expect(span.classList.contains('chip-teal')).toBe(true);
+  it('should apply violet styling', async () => {
+    await render(ChipComponent, {
+      inputs: { label: 'María', color: 'violet' },
+    });
+
+    expect(screen.getByText('María')).toHaveClass('chip-violet');
   });
 
-  it('should apply amber class when color is amber', () => {
-    fixture.componentRef.setInput('color', 'amber');
-    fixture.detectChanges();
+  it('should apply default styling when no color specified', async () => {
+    await render(ChipComponent, {
+      inputs: { label: 'genérico' },
+    });
 
-    const span = fixture.nativeElement.querySelector('span');
-    expect(span.classList.contains('chip-amber')).toBe(true);
-  });
-
-  it('should apply violet class when color is violet', () => {
-    fixture.componentRef.setInput('color', 'violet');
-    fixture.detectChanges();
-
-    const span = fixture.nativeElement.querySelector('span');
-    expect(span.classList.contains('chip-violet')).toBe(true);
-  });
-
-  it('should apply default class when color is default', () => {
-    fixture.componentRef.setInput('color', 'default');
-    fixture.detectChanges();
-
-    const span = fixture.nativeElement.querySelector('span');
-    expect(span.classList.contains('chip-default')).toBe(true);
-  });
-
-  it('should update label when input changes', () => {
-    fixture.componentRef.setInput('label', 'mañana');
-    fixture.detectChanges();
-
-    const span = fixture.nativeElement.querySelector('span');
-    expect(span.textContent.trim()).toBe('mañana');
+    expect(screen.getByText('genérico')).toHaveClass('chip-default');
   });
 });

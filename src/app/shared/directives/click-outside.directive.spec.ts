@@ -1,68 +1,54 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Component } from '@angular/core';
+import { render, screen } from '@testing-library/angular';
+import userEvent from '@testing-library/user-event';
 import { ClickOutsideDirective } from './click-outside.directive';
 
-@Component({
-  standalone: true,
-  imports: [ClickOutsideDirective],
-  template: `
-    <div id="outside">Fuera</div>
-    <div id="inside" appClickOutside (clickOutside)="onClickOutside()">
-      <span id="child">Dentro</span>
-    </div>
-  `,
-})
-class TestHostComponent {
-  outsideClicked = false;
-  onClickOutside() {
-    this.outsideClicked = true;
-  }
-}
-
 describe('ClickOutsideDirective', () => {
-  let fixture: ComponentFixture<TestHostComponent>;
-  let host: TestHostComponent;
+  const user = userEvent.setup();
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [TestHostComponent],
-    }).compileComponents();
+  it('should emit clickOutside when clicking outside the host element', async () => {
+    const onClickOutside = vi.fn();
 
-    fixture = TestBed.createComponent(TestHostComponent);
-    host = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+    await render(
+      `<div>
+        <button data-testid="outside-btn">Fuera</button>
+        <div appClickOutside (clickOutside)="onClickOutside()">
+          <span>Dentro</span>
+        </div>
+      </div>`,
+      {
+        imports: [ClickOutsideDirective],
+        componentProperties: { onClickOutside },
+      }
+    );
 
-  it('should create', () => {
-    const inside = fixture.nativeElement.querySelector('#inside');
-    expect(inside).toBeTruthy();
-  });
-
-  it('should emit clickOutside when clicking outside the host', async () => {
     // Wait for setTimeout in directive
     await new Promise((resolve) => setTimeout(resolve, 20));
 
-    const outside = fixture.nativeElement.querySelector('#outside');
-    outside.click();
+    await user.click(screen.getByTestId('outside-btn'));
 
-    expect(host.outsideClicked).toBe(true);
+    expect(onClickOutside).toHaveBeenCalledTimes(1);
   });
 
-  it('should NOT emit when clicking inside the host', async () => {
+  it('should NOT emit when clicking inside the host element', async () => {
+    const onClickOutside = vi.fn();
+
+    await render(
+      `<div>
+        <button data-testid="outside-btn">Fuera</button>
+        <div appClickOutside (clickOutside)="onClickOutside()">
+          <span>Dentro del host</span>
+        </div>
+      </div>`,
+      {
+        imports: [ClickOutsideDirective],
+        componentProperties: { onClickOutside },
+      }
+    );
+
     await new Promise((resolve) => setTimeout(resolve, 20));
 
-    const inside = fixture.nativeElement.querySelector('#inside');
-    inside.click();
+    await user.click(screen.getByText('Dentro del host'));
 
-    expect(host.outsideClicked).toBe(false);
-  });
-
-  it('should NOT emit when clicking on a child of the host', async () => {
-    await new Promise((resolve) => setTimeout(resolve, 20));
-
-    const child = fixture.nativeElement.querySelector('#child');
-    child.click();
-
-    expect(host.outsideClicked).toBe(false);
+    expect(onClickOutside).not.toHaveBeenCalled();
   });
 });
