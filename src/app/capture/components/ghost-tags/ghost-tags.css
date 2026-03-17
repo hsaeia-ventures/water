@@ -1,0 +1,23 @@
+.ghost-tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.5rem 0 0; /* Espaciado extra si aparece debajo del input */
+  min-height: 2.25rem; /* Evita reflows bruscos si estamos pre-allocando espacio */
+}
+
+.ghost-tag-item {
+  animation: slideFadeIn var(--transition-normal) var(--ease-organic) both;
+}
+
+/* Keyframes para que las tags aparezcan mágicamente a medida que se escriben */
+@keyframes slideFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

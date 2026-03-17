@@ -3,6 +3,8 @@ import { CaptureBottomSheetComponent } from './capture-bottom-sheet';
 import { CaptureUiService } from '../../services/capture-ui.service';
 import { KeyboardShortcutService } from '../../../core/services/keyboard-shortcut.service';
 import { signal } from '@angular/core';
+import { SpeechRecognitionService } from '../../services/speech-recognition.service';
+import { GhostTagService } from '../../services/ghost-tag.service';
 
 describe('CaptureBottomSheetComponent', () => {
   let mockUiService: { isOpen: any, captureMode: any, close: any };
@@ -21,7 +23,9 @@ describe('CaptureBottomSheetComponent', () => {
     return render(CaptureBottomSheetComponent, {
       providers: [
         { provide: CaptureUiService, useValue: mockUiService },
-        { provide: KeyboardShortcutService, useValue: mockShortcutService }
+        { provide: KeyboardShortcutService, useValue: mockShortcutService },
+        { provide: SpeechRecognitionService, useValue: { isAvailable: signal(true), isListening: signal(false), transcript: signal(''), toggle: vi.fn() } },
+        { provide: GhostTagService, useValue: { parseText: vi.fn().mockReturnValue([]) } }
       ]
     });
   };

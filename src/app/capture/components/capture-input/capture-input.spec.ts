@@ -4,8 +4,14 @@ import { TestBed } from '@angular/core/testing';
 import { CaptureInputComponent } from './capture-input';
 import { HapticService } from '../../../core/services/haptic.service';
 
+import { GhostTagService } from '../../services/ghost-tag.service';
+import { SpeechRecognitionService } from '../../services/speech-recognition.service';
+import { signal } from '@angular/core';
+
 describe('CaptureInputComponent', () => {
   let mockHaptic: { success: any, error: any };
+  let mockGhostTagService: { parseText: any };
+  let mockSpeechService: { isAvailable: any, isListening: any, transcript: any, toggle: any };
   const user = userEvent.setup();
 
   beforeEach(() => {
@@ -13,12 +19,23 @@ describe('CaptureInputComponent', () => {
       success: vi.fn(),
       error: vi.fn()
     };
+    mockGhostTagService = {
+      parseText: vi.fn().mockReturnValue([]) // Return empty tags by default
+    };
+    mockSpeechService = {
+      isAvailable: signal(true),
+      isListening: signal(false),
+      transcript: signal(''),
+      toggle: vi.fn()
+    };
   });
 
   const setup = async () => {
     return render(CaptureInputComponent, {
       providers: [
-        { provide: HapticService, useValue: mockHaptic }
+        { provide: HapticService, useValue: mockHaptic },
+        { provide: GhostTagService, useValue: mockGhostTagService },
+        { provide: SpeechRecognitionService, useValue: mockSpeechService }
       ]
     });
   };
@@ -79,7 +96,11 @@ describe('CaptureInputComponent', () => {
   it('should not submit empty strings or whitespace', async () => {
     const captureSpy = vi.fn();
     await render(CaptureInputComponent, {
-      providers: [{ provide: HapticService, useValue: mockHaptic }],
+      providers: [
+        { provide: HapticService, useValue: mockHaptic },
+        { provide: GhostTagService, useValue: mockGhostTagService },
+        { provide: SpeechRecognitionService, useValue: mockSpeechService }
+      ],
       on: { capture: captureSpy }
     });
 
@@ -88,5 +109,50 @@ describe('CaptureInputComponent', () => {
 
     expect(captureSpy).not.toHaveBeenCalled();
     expect(mockHaptic.error).toHaveBeenCalledTimes(1);
+  });
+
+  describe('Speech Recognition', () => {
+    it('should show mic button if speech is available', async () => {
+      await setup();
+      expect(screen.getByRole('button', { name: /Iniciar dictado por voz/i })).toBeInTheDocument();
+    });
+
+    it('should NOT show mic button if speech is NOT available', async () => {
+      mockSpeechService.isAvailable.set(false);
+      await setup();
+      expect(screen.queryByRole('button', { name: /Iniciar dictado por voz/i })).not.toBeInTheDocument();
+    });
+
+    it('should toggle dictation on mic button click', async () => {
+      await setup();
+      const micBtn = screen.getByRole('button', { name: /Iniciar dictado por voz/i });
+      
+      await user.click(micBtn);
+      
+      expect(mockSpeechService.toggle).toHaveBeenCalledTimes(1);
+    });
+
+    it('should append transcript to existing textarea value when listening', async () => {
+      const { fixture } = await setup();
+      const textarea = screen.getByRole('textbox');
+      
+      // User types first
+      await user.type(textarea, 'Base text');
+      
+      // Simulate click on mic button so it copies current base text
+      const micBtn = screen.getByRole('button', { name: /Iniciar dictado/i });
+      await user.click(micBtn);
+      
+      // Assume user started recording
+      mockSpeechService.isListening.set(true);
+      // Let's assume the user speaks and the signal updates
+      mockSpeechService.transcript.set('more spoken text');
+      
+      TestBed.flushEffects();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(textarea).toHaveValue('Base text more spoken text');
+    });
   });
 });

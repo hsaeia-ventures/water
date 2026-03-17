@@ -1,0 +1,10 @@
+<div class="ghost-tags-container" *ngIf="tags().length > 0">
+  @for (tag of tags(); track tag.type + ':' + tag.value; let i = $index) {
+    <app-chip 
+      class="ghost-tag-item"
+      [style.animation-delay]="i * 50 + 'ms'"
+      [color]="mapTagTypeToColor(tag.type)"
+      [label]="tag.value">
+    </app-chip>
+  }
+</div>
