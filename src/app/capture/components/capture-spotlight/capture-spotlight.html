@@ -1,0 +1,18 @@
+<app-backdrop 
+  [visible]="isVisible()" 
+  (backdropClick)="close()">
+</app-backdrop>
+
+<div 
+  class="spotlight" 
+  [class.spotlight--open]="isVisible()"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Panel de captura rápida (Spotlight)">
+  
+  <div class="spotlight__container">
+    @if (isVisible()) {
+      <app-capture-input (capture)="handleCapture($event)" />
+    }
+  </div>
+</div>

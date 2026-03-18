@@ -1,0 +1,42 @@
+<div class="app-layout">
+  <!-- Minimalist Header -->
+  <header class="app-header">
+    <div class="app-header__container">
+      
+      <!-- Brand / Logo -->
+      <a routerLink="/" class="app-brand" aria-label="Water Home">
+        <app-icon name="water" class="app-brand__icon" />
+        <span class="app-brand__text">Water</span>
+      </a>
+
+      <!-- Navigation / Inbox Badge -->
+      <nav class="app-nav">
+        <!-- Inbox action will be handled via routing. For now we use routerLink -->
+        <a 
+          routerLink="/inbox" 
+          routerLinkActive="app-nav__link--active"
+          class="app-nav__link" 
+          aria-label="Go to Inbox">
+          <app-icon name="inbox" [size]="20" />
+          <span class="app-nav__label">Inbox</span>
+          <app-inbox-badge />
+        </a>
+      </nav>
+
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="app-main">
+    <div class="app-main__container">
+      <router-outlet />
+    </div>
+  </main>
+
+  <!-- Global Omni-FAB (Mobile Only) -->
+  <app-omni-fab />
+
+  <!-- Global Capture Interfaces -->
+  <app-capture-bottom-sheet />
+  <app-capture-spotlight />
+</div>

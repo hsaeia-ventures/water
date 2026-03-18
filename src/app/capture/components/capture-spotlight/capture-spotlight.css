@@ -1,0 +1,52 @@
+.spotlight {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 60;
+  
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 15vh; /* Se posiciona un poco por encima del centro */
+  
+  pointer-events: none; /* Para que el backdrop intercepte los clicks en el padding */
+  
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity var(--transition-fast) var(--ease-smooth),
+              transform var(--transition-fast) var(--ease-organic);
+  visibility: hidden;
+}
+
+.spotlight--open {
+  opacity: 1;
+  visibility: visible;
+  transform: scale(1);
+  pointer-events: auto; /* Reactivar pointer-events al estar abierto */
+}
+
+.spotlight__container {
+  width: 100%;
+  max-width: 42rem; /* Ancho generoso para desktop (~672px max) */
+  margin: 0 1.5rem;
+  
+  /* El diseño del spotlight usualmente no necesita background extra
+     ya que se aprovecha del capture-input, pero si quisiéramos un
+     canvas más grande, iría aquí */
+}
+
+/* Rediseño ligero del capture-input sólo cuando está en el spotlight
+   haciéndolo un poco más grande visualmente */
+:host ::ng-deep .capture-input-container {
+  padding: 1rem 1.25rem;
+  box-shadow: var(--shadow-xl), 0 0 0 1px var(--color-border-subtle);
+  border: none;
+  background-color: var(--color-surface-base); /* Mas oscuro/denso que el modal normal */
+}
+
+:host ::ng-deep .capture-input__field {
+  font-size: 1.25rem;
+  line-height: 1.6;
+}

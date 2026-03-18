@@ -1,0 +1,39 @@
+<div class="capture-input-container">
+  <textarea
+    #textareaRef
+    appAutoFocus
+    [autoFocusDelay]="100"
+    class="capture-input__field"
+    placeholder="¿Qué tienes en mente? (Cmd+Enter o Enter para capturar)"
+    rows="1"
+    [ngModel]="text()"
+    (input)="onInput($event)"
+    (keydown)="onKeydown($event)"
+    aria-label="Entrada de captura"
+  ></textarea>
+
+  <div class="capture-input__actions">
+    @if (speechService.isAvailable()) {
+      <app-button 
+        variant="icon-only" 
+        [iconName]="speechService.isListening() ? 'mic-off' : 'mic'" 
+        [class.capture-input__mic--listening]="speechService.isListening()"
+        (click)="toggleDictation()"
+        [ariaLabel]="speechService.isListening() ? 'Detener dictado' : 'Iniciar dictado por voz'">
+      </app-button>
+    }
+
+    <app-button 
+      variant="icon-only" 
+      iconName="send" 
+      [disabled]="!text().trim()"
+      (click)="submit()" 
+      [ariaLabel]="'Enviar captura'">
+    </app-button>
+  </div>
+</div>
+
+<!-- Renderizado orgánico de Chips cuando se detectan contextos mágicos en el texto -->
+@if (ghostTags().length > 0) {
+  <app-ghost-tags [tags]="ghostTags()" />
+}

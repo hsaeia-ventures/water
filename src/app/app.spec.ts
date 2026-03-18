@@ -1,23 +1,14 @@
-import { TestBed } from '@angular/core/testing';
+import { render, screen } from '@testing-library/angular';
 import { App } from './app';
+import { provideRouter } from '@angular/router';
 
 describe('App', () => {
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [App],
-    }).compileComponents();
-  });
-
-  it('should create the app', () => {
-    const fixture = TestBed.createComponent(App);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
-  });
-
-  it('should render title', async () => {
-    const fixture = TestBed.createComponent(App);
-    await fixture.whenStable();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, water-ang');
+  it('should render the app shell', async () => {
+    await render(App, {
+      providers: [provideRouter([])]
+    });
+    
+    // Check if AppShell's core visuals are visible in the integration point
+    expect(screen.getByText('Water')).toBeInTheDocument();
   });
 });

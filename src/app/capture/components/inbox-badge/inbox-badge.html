@@ -1,0 +1,13 @@
+@if (count() > 0) {
+  <span 
+    class="inbox-badge" 
+    [ngClass]="[
+      'inbox-badge--' + level(),
+      isBouncing() ? 'inbox-badge--bounce' : ''
+    ]"
+    role="status"
+    aria-label="Elementos pendientes en inbox"
+  >
+    {{ count() > 99 ? '99+' : count() }}
+  </span>
+}
