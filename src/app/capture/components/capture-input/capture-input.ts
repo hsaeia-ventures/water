@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, output, signal, computed, ViewChild, ElementRef, inject, effect } from '@angular/core';
+import { Component, ChangeDetectionStrategy, output, signal, computed, ViewChild, ElementRef, inject, effect, untracked, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AutoFocusDirective } from '../../../shared/directives/auto-focus.directive';
@@ -26,6 +26,7 @@ export class CaptureInputComponent {
 
   // Almacena el texto base que había antes de presionar el micrófono
   private textBeforeDictation = '';
+  private wasListening = false;
 
   // Computamos las etiquetas mágicas a partir del texto que el usuario escribe
   public ghostTags = computed(() => this.ghostTagService.parseText(this.text()));
@@ -34,8 +35,11 @@ export class CaptureInputComponent {
 
   constructor() {
     effect(() => {
-      // Sync the Web Speech interim transcript into the textarea
-      if (this.speechService.isListening()) {
+      const isListening = this.speechService.isListening();
+      
+      if (isListening) {
+        this.wasListening = true;
+        // Sync the Web Speech interim transcript into the textarea
         const spoken = this.speechService.transcript();
         if (spoken) {
           const space = this.textBeforeDictation ? ' ' : '';
@@ -46,8 +50,26 @@ export class CaptureInputComponent {
             this.adjustHeight(this.textareaRef.nativeElement);
           }
         }
+      } else {
+        if (this.wasListening) {
+          this.wasListening = false;
+          // Untrack signal reads to avoid triggering effect on every keystroke
+          const hasText = untracked(() => this.text().trim().length > 0);
+          if (hasText) {
+            untracked(() => this.submit());
+          }
+        }
       }
     });
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  public handleGlobalShortcuts(event: KeyboardEvent): void {
+    // Si presiona Ctrl + M (shortcut solicitado)
+    if (event.ctrlKey && event.key.toLowerCase() === 'm') {
+      event.preventDefault();
+      this.toggleDictation();
+    }
   }
 
   public onInput(event: Event): void {
