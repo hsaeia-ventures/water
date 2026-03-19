@@ -20,16 +20,16 @@
         <li class="inbox-item">
           <!-- Item core info -->
           <div class="inbox-item__content">
-            <p class="inbox-item__text">{{ item.text }}</p>
+            <p class="inbox-item__text">{{ item.title }}</p>
             
             <div class="inbox-item__meta">
               <!-- Relative time formatting -->
-              <time class="inbox-item__time">{{ item.createdAt | relativeTime }}</time>
+              <time class="inbox-item__time">{{ item.created_at | relativeTime }}</time>
               
               <!-- Ghost Tags inline -->
-              @if (item.ghostTags.length > 0) {
+              @if (item.ghost_tags && item.ghost_tags.length > 0) {
                 <div class="inbox-item__tags">
-                  <app-ghost-tags [tags]="item.ghostTags" />
+                  <app-ghost-tags [tags]="item.ghost_tags" />
                 </div>
               }
             </div>

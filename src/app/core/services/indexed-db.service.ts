@@ -5,10 +5,11 @@ import { Injectable } from '@angular/core';
 })
 export class IndexedDbService {
   private readonly DB_NAME = 'water_db';
-  private readonly DB_VERSION = 1;
+  private readonly DB_VERSION = 2; // Incremented for V2 GTD Items
 
   // Colecciones (Object Stores)
-  public readonly STORE_CAPTURES = 'captures';
+  public readonly STORE_GTD_ITEMS = 'gtd_items';
+  public readonly STORE_SYNC_QUEUE = 'sync_queue';
 
   private db: IDBDatabase | null = null;
   private dbPromise: Promise<IDBDatabase> | null = null;
@@ -42,9 +43,14 @@ export class IndexedDbService {
       request.onupgradeneeded = (event: IDBVersionChangeEvent) => {
         const db = request.result;
         // Migraciones / Creación de Schema
-        if (event.oldVersion < 1) {
-          // Crear la tabla para captures (inbox) con 'id' como primary key
-          db.createObjectStore(this.STORE_CAPTURES, { keyPath: 'id' });
+        
+        // Versión 1 y 2
+        if (!db.objectStoreNames.contains(this.STORE_GTD_ITEMS)) {
+           db.createObjectStore(this.STORE_GTD_ITEMS, { keyPath: 'id' });
+        }
+        
+        if (!db.objectStoreNames.contains(this.STORE_SYNC_QUEUE)) {
+           db.createObjectStore(this.STORE_SYNC_QUEUE, { keyPath: 'id' });
         }
       };
     });
