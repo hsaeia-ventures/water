@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { IconComponent } from '../shared/components/icon/icon';
 import { ButtonComponent } from '../shared/components/button/button';
@@ -7,6 +7,7 @@ import { OmniFabComponent } from '../capture/components/omni-fab/omni-fab';
 import { CaptureBottomSheetComponent } from '../capture/components/capture-bottom-sheet/capture-bottom-sheet';
 import { CaptureSpotlightComponent } from '../capture/components/capture-spotlight/capture-spotlight';
 import { InboxBadgeComponent } from '../capture/components/inbox-badge/inbox-badge';
+import { SupabaseService } from '../core/services/supabase.service';
 
 @Component({
   selector: 'app-shell',
@@ -26,6 +27,6 @@ import { InboxBadgeComponent } from '../capture/components/inbox-badge/inbox-bad
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppShellComponent {
-  // Inbox count could be a signal from a store later. For now, we mock it or keep it static.
-  // We'll leave it ready to receive a signal.
+  private supabase = inject(SupabaseService);
+  public isAuthenticated = this.supabase.isAuthenticated;
 }

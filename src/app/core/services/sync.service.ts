@@ -1,7 +1,8 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, effect } from '@angular/core';
 import { IndexedDbService } from './indexed-db.service';
 import { SupabaseService } from './supabase.service';
 import { SyncOperation } from '../models/sync-queue.model';
+import { GtdItem } from '../models/gtd-item.model';
 
 @Injectable({
   providedIn: 'root'
@@ -13,9 +14,14 @@ export class SyncService {
   constructor() {
     window.addEventListener('online', () => this.syncQueue());
     
-    if (navigator.onLine) {
-      this.syncQueue();
-    }
+    // Listen to authentication state to start pulling and pushing
+    effect(() => {
+      if (this.supabaseService.isAuthenticated() && navigator.onLine) {
+        this.downloadRemoteData().then(() => {
+          this.syncQueue();
+        });
+      }
+    });
   }
 
   async enqueueOperation(op: Omit<SyncOperation, 'timestamp'>) {
@@ -27,6 +33,31 @@ export class SyncService {
     
     if (navigator.onLine) {
       this.syncQueue();
+    }
+  }
+
+  async downloadRemoteData() {
+    if (!this.supabaseService.isAuthenticated()) return;
+    
+    try {
+      const supabase = this.supabaseService.client;
+      // Fetch all remote items
+      const { data, error } = await supabase.from('gtd_items').select('*');
+      
+      if (error) {
+        console.error('[Sync] Error al descargar data:', error);
+        return;
+      }
+      
+      if (data && data.length > 0) {
+        // Upsert locales con la data remota
+        for (const item of data) {
+          await this.indexedDb.put(this.indexedDb.STORE_GTD_ITEMS, item as GtdItem);
+        }
+        window.dispatchEvent(new CustomEvent('sync-down-complete'));
+      }
+    } catch (e) {
+      console.error('[Sync] Excepción en downloadRemoteData:', e);
     }
   }
 
@@ -44,13 +75,16 @@ export class SyncService {
         switch (op.action) {
           case 'INSERT':
             {
-              const { error } = await supabase.from(op.entityType).insert(op.payload);
+              // Inject the current user ID just before sending
+              const userOp = { ...op.payload, user_id: this.supabaseService.currentUser()?.id };
+              const { error } = await supabase.from(op.entityType).insert(userOp);
               if (error) success = false;
             }
             break;
           case 'UPDATE':
             {
-              const { error } = await supabase.from(op.entityType).update(op.payload).eq('id', op.payload.id);
+              const userOp = { ...op.payload, user_id: this.supabaseService.currentUser()?.id };
+              const { error } = await supabase.from(op.entityType).update(userOp).eq('id', op.payload.id);
               if (error) success = false;
             }
             break;
@@ -65,7 +99,7 @@ export class SyncService {
         if (success) {
           await this.indexedDb.delete(this.indexedDb.STORE_SYNC_QUEUE, op.id);
         } else {
-          break;
+          break; // Si uno falla, detener cola
         }
       }
     } catch (e) {

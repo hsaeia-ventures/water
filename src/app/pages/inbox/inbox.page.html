@@ -1,9 +1,19 @@
 <div class="inbox-page">
-  <div class="inbox-page__header">
-    <h1 class="inbox-page__title">Inbox</h1>
-    <span class="inbox-page__count">{{ store.inboxCount() }} pendientes</span>
+  <div class="inbox-page__header flex justify-between items-center mb-6">
+    <div>
+      <h1 class="inbox-page__title">Inbox</h1>
+      <span class="inbox-page__count">{{ store.inboxCount() }} pendientes</span>
+    </div>
+    
+    @if (store.inboxCount() > 0) {
+      <a routerLink="/clarify" class="bg-teal-500 hover:bg-teal-400 text-zinc-950 px-4 py-2 rounded-xl font-medium shadow-lg transition-all flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+        </svg>
+        Aclarar Bandeja
+      </a>
+    }
   </div>
-
   @if (store.inboxCount() === 0) {
     <!-- Estado de paz mental -->
     <div class="inbox-page__empty-container">
