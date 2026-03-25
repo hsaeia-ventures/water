@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink, RouterLinkActive, Router } from '@angular/router';
+import { SupabaseService } from '../../core/services/supabase.service';
+import { IndexedDbService } from '../../core/services/indexed-db.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -40,7 +42,37 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
         <span class="font-medium text-sm">Incubadora</span>
       </a>
       
+      <!-- Spacer -->
+      <div class="flex-1"></div>
+
+      <!-- Separator -->
+      <hr class="border-zinc-800/60 my-1" />
+
+      <!-- Logout -->
+      <button
+        (click)="logout()"
+        aria-label="Cerrar sesión"
+        class="flex items-center gap-3 px-3 py-2 rounded-xl text-zinc-500 hover:text-red-400 hover:bg-red-950/30 transition-colors w-full text-left">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+        </svg>
+        <span class="font-medium text-sm">Cerrar sesión</span>
+      </button>
     </nav>
   `
 })
-export class SidebarComponent {}
+export class SidebarComponent {
+  private supabase = inject(SupabaseService);
+  private indexedDb = inject(IndexedDbService);
+  private router = inject(Router);
+
+  async logout(): Promise<void> {
+    try {
+      await this.indexedDb.clearStore(this.indexedDb.STORE_GTD_ITEMS);
+      await this.supabase.signOut();
+      await this.router.navigate(['/login']);
+    } catch (e) {
+      console.error('[Water] Error al cerrar sesión', e);
+    }
+  }
+}
