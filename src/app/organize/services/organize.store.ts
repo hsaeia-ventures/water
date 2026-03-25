@@ -44,7 +44,7 @@ export class OrganizeStore {
 
   public async toggleActionComplete(item: GtdItem) {
     const newStatus = item.status === 'done' ? 'next_action' : 'done';
-    const updatedItem = {
+    const updatedItem: GtdItem = {
       ...item,
       status: newStatus,
       completed_at: newStatus === 'done' ? new Date() : undefined,

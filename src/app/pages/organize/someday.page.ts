@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { OrganizeStore } from '../../../organize/services/organize.store';
-import { RelativeTimePipe } from '../../../shared/pipes/relative-time.pipe';
+import { OrganizeStore } from '../../organize/services/organize.store';
+import { RelativeTimePipe } from '../../shared/pipes/relative-time.pipe';
 
 @Component({
   selector: 'app-someday-page',

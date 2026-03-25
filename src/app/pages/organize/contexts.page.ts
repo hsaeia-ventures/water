@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { OrganizeStore } from '../../../organize/services/organize.store';
+import { OrganizeStore } from '../../organize/services/organize.store';
 
 @Component({
   selector: 'app-contexts-page',
@@ -75,12 +75,12 @@ import { OrganizeStore } from '../../../organize/services/organize.store';
                 <!-- Ghost Tags (Contexts and others) -->
                 @if (action.ghost_tags && action.ghost_tags.length > 0 && action.status !== 'done') {
                   <div class="flex flex-wrap gap-2 mt-3">
-                    @for (tag of action.ghost_tags; track tag) {
+                    @for (tag of action.ghost_tags; track tag.raw) {
                       <span 
                         class="px-2 py-0.5 rounded text-xs font-medium"
-                        [ngClass]="tag.startsWith('@') ? 'bg-teal-500/10 text-teal-400 border border-teal-500/20' : 'bg-zinc-800 text-zinc-400'"
+                        [ngClass]="tag.type === 'context' ? 'bg-teal-500/10 text-teal-400 border border-teal-500/20' : 'bg-zinc-800 text-zinc-400'"
                       >
-                        {{ tag }}
+                        {{ tag.raw || tag.value }}
                       </span>
                     }
                   </div>
@@ -124,8 +124,8 @@ export default class ContextsPage {
     actions.forEach(action => {
       if (action.ghost_tags) {
         action.ghost_tags.forEach(tag => {
-          if (tag.startsWith('@')) {
-            contexts.add(tag);
+          if (tag.type === 'context') {
+            contexts.add(tag.raw || '@' + tag.value);
           }
         });
       }
@@ -141,7 +141,7 @@ export default class ContextsPage {
     if (ctx === 'all') return actions;
     
     return actions.filter(action => 
-      action.ghost_tags && action.ghost_tags.includes(ctx)
+      action.ghost_tags && action.ghost_tags.some(tag => tag.type === 'context' && (tag.raw === ctx || '@' + tag.value === ctx))
     );
   });
 

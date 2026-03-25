@@ -1,6 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { OrganizeStore } from '../../../organize/services/organize.store';
+import { OrganizeStore } from '../../organize/services/organize.store';
 
 @Component({
   selector: 'app-projects-page',
