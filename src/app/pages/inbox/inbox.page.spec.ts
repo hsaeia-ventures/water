@@ -32,8 +32,8 @@ describe('InboxPage', () => {
 
   it('should render items when store has elements', async () => {
     mockStore.items.set([
-      { id: '1', text: 'Task 1', createdAt: new Date(), ghostTags: [] },
-      { id: '2', text: 'Idea 2', createdAt: new Date(), ghostTags: [] }
+      { id: '1', title: 'Task 1', created_at: new Date(), ghost_tags: [] },
+      { id: '2', title: 'Idea 2', created_at: new Date(), ghost_tags: [] }
     ]);
     mockStore.inboxCount.set(2);
     
@@ -46,7 +46,7 @@ describe('InboxPage', () => {
 
   it('should allow deleting an item', async () => {
     mockStore.items.set([
-      { id: '1', text: 'Task to delete', createdAt: new Date(), ghostTags: [] }
+      { id: '1', title: 'Task to delete', created_at: new Date(), ghost_tags: [] }
     ]);
     mockStore.inboxCount.set(1);
     

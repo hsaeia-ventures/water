@@ -33,7 +33,7 @@ describe('InboxReminderService', () => {
 
   it('should return info level for fewer than 5 items recently created', () => {
     mockCaptureStore.items.set([
-      { createdAt: new Date() } // just now
+      { created_at: new Date() } // just now
     ]);
     mockCaptureStore.inboxCount.set(1);
 
@@ -42,7 +42,7 @@ describe('InboxReminderService', () => {
   });
 
   it('should return warning level for 5 or more items recently created', () => {
-    const items = Array.from({ length: 5 }, () => ({ createdAt: new Date() }));
+    const items = Array.from({ length: 5 }, () => ({ created_at: new Date() }));
     mockCaptureStore.items.set(items);
     mockCaptureStore.inboxCount.set(5);
 
@@ -53,8 +53,8 @@ describe('InboxReminderService', () => {
   it('should trigger reminder and critical level if the oldest item is older than 12 hours', () => {
     const past13Hours = new Date(new Date().getTime() - (13 * 60 * 60 * 1000));
     const items = [
-      { createdAt: new Date() }, // newest
-      { createdAt: past13Hours }  // oldest
+      { created_at: new Date() }, // newest
+      { created_at: past13Hours }  // oldest
     ];
     mockCaptureStore.items.set(items);
     mockCaptureStore.inboxCount.set(2);
@@ -64,7 +64,7 @@ describe('InboxReminderService', () => {
   });
 
   it('should return critical level if there are 10 or more items, regardless of age', () => {
-    const items = Array.from({ length: 15 }, () => ({ createdAt: new Date() }));
+    const items = Array.from({ length: 15 }, () => ({ created_at: new Date() }));
     mockCaptureStore.items.set(items);
     mockCaptureStore.inboxCount.set(15);
 

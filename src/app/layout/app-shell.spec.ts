@@ -1,11 +1,16 @@
 import { render, screen } from '@testing-library/angular';
 import { AppShellComponent } from './app-shell';
 import { provideRouter } from '@angular/router';
+import { SupabaseService } from '../core/services/supabase.service';
+import { signal } from '@angular/core';
 
 describe('AppShellComponent', () => {
   it('should render the minimal header with brand and inbox link', async () => {
     await render(AppShellComponent, {
-      providers: [provideRouter([])], // Provide router for routerLink
+      providers: [
+        provideRouter([]),
+        { provide: SupabaseService, useValue: { isAuthenticated: signal(true) } }
+      ], // Provide router for routerLink
     });
 
     // We verify what the user sees
