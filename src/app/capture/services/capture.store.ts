@@ -1,7 +1,8 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
-import { CaptureItem } from '../models/capture-item.model';
+import { GtdItem } from '../../core/models/gtd-item.model';
 import { GhostTag } from '../models/ghost-tag.model';
 import { IndexedDbService } from '../../core/services/indexed-db.service';
+import { SyncService } from '../../core/services/sync.service';
 import { generateId } from '../../core/utils/uuid.util';
 
 @Injectable({
@@ -9,9 +10,10 @@ import { generateId } from '../../core/utils/uuid.util';
 })
 export class CaptureStore {
   private db = inject(IndexedDbService);
+  private syncService = inject(SyncService);
 
-  // State: lista interna de capturas
-  private itemsState = signal<CaptureItem[]>([]);
+  // State: lista interna de capturas (GtdItems donde status = 'inbox')
+  private itemsState = signal<GtdItem[]>([]);
 
   // Selectors públicos y solo-lectura para componentes
   public readonly items = this.itemsState.asReadonly();
@@ -22,16 +24,16 @@ export class CaptureStore {
   }
 
   /**
-   * Carga todas las capturas almacenadas en IndexedDB
-   * (Usualmente se lanza al arrancar la app / instanciar el store)
+   * Carga todas las capturas (status=inbox) almacenadas en IndexedDB
    */
   public async loadAll(): Promise<void> {
     try {
-      const storedItems = await this.db.getAll<CaptureItem>(this.db.STORE_CAPTURES);
+      const storedItems = await this.db.getAll<GtdItem>(this.db.STORE_GTD_ITEMS);
+      const inboxItems = storedItems.filter(i => i.status === 'inbox');
       
       // Ordenamos en memoria para mostrar lo más reciente arriba
-      const sorted = storedItems.sort((a, b) => 
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      const sorted = inboxItems.sort((a, b) => 
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       );
       
       this.itemsState.set(sorted);
@@ -41,35 +43,60 @@ export class CaptureStore {
   }
 
   /**
-   * Crea, persiste de forma Offline-First, y anexa una nueva idea a la lista
+   * Crea, persiste de forma Offline-First, encola para sincronizar y anexa a la lista
    */
   public async addCapture(text: string, ghostTags: GhostTag[] = []): Promise<void> {
-    const newItem: CaptureItem = {
+    const newItem: GtdItem = {
       id: generateId(),
-      text,
-      ghostTags,
-      createdAt: new Date(),
-      synced: false // Todavía no hemos llegado a la fase de Backend (Supabase)
+      type: 'capture',
+      status: 'inbox',
+      title: text,
+      ghost_tags: ghostTags,
+      created_at: new Date(),
+      updated_at: new Date()
     };
 
     try {
-      // 1. Escribir a BD local primero para salvaguardar
-      await this.db.put(this.db.STORE_CAPTURES, newItem);
+      // 1. Escribir a BD local primero para salvaguardar (Latencia Cero)
+      await this.db.put(this.db.STORE_GTD_ITEMS, newItem);
       
-      // 2. Actualizar estado (Reactividad para la UI)
+      // 2. Encolar INSERT a Supabase a través del SyncQueue
+      await this.syncService.enqueueOperation({
+        id: generateId(),
+        entityType: 'gtd_items',
+        action: 'INSERT',
+        payload: newItem
+      });
+
+      // 3. Log user tracking
+      await this.syncService.enqueueOperation({
+        id: generateId(),
+        entityType: 'usage_logs',
+        action: 'INSERT',
+        payload: { event_type: 'item_captured', metadata: { item_id: newItem.id } }
+      });
+
+      // 4. Actualizar estado reactivo
       this.itemsState.update(current => [newItem, ...current]);
     } catch (error) {
-      console.error('[Water] Fallo críitico guardando captura localmente', error);
-      // Opcional: Notificar a través de un ToastService en el futuro
+      console.error('[Water] Fallo critico guardando captura localmente', error);
     }
   }
 
   /**
-   * Elimina permanentemente una captura local (Inbox clear)
+   * Elimina permanentemente una captura local (Trash flow temporal para Inbox page)
    */
   public async deleteCapture(id: string): Promise<void> {
     try {
-      await this.db.delete(this.db.STORE_CAPTURES, id);
+      await this.db.delete(this.db.STORE_GTD_ITEMS, id);
+      
+      await this.syncService.enqueueOperation({
+        id: generateId(),
+        entityType: 'gtd_items',
+        action: 'DELETE',
+        payload: { id }
+      });
+
       this.itemsState.update(current => current.filter(item => item.id !== id));
     } catch (error) {
       console.error('[Water] Error al eliminar la captura', error);

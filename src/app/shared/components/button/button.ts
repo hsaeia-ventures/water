@@ -96,12 +96,12 @@ export type ButtonVariant = 'primary' | 'ghost' | 'icon-only';
       padding: 0.5rem;
       border-radius: var(--radius-full);
       background-color: transparent;
-      color: var(--color-text-secondary);
+      color: var(--btn-text-color, var(--color-text-secondary));
     }
 
     .btn-icon-only:hover:not(:disabled) {
-      background-color: var(--color-surface-overlay);
-      color: var(--color-text-primary);
+      background-color: var(--btn-hover-bg, var(--color-surface-overlay));
+      color: var(--btn-hover-color, var(--color-text-primary));
     }
 
     /* ── Spinner ── */

@@ -15,7 +15,7 @@ export class InboxReminderService {
 
     // Los items están ordenados: [0] es el más nuevo, [length - 1] el más viejo
     const oldestItem = items[items.length - 1];
-    const oldestDate = new Date(oldestItem.createdAt).getTime();
+    const oldestDate = new Date(oldestItem.created_at).getTime();
     const now = new Date().getTime();
 
     const hoursElapsed = (now - oldestDate) / (1000 * 60 * 60);
