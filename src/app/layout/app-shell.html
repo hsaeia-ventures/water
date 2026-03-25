@@ -29,8 +29,17 @@
 
     <!-- Main Content Area -->
     <main class="app-main">
-      <div class="app-main__container">
-        <router-outlet />
+      <div class="app-main__container flex gap-8">
+        
+        <!-- Sidebar Navigation (Desktop Only) -->
+        <aside class="hidden md:block w-64 flex-shrink-0">
+          <app-sidebar />
+        </aside>
+        
+        <div class="flex-1 w-full min-w-0">
+          <router-outlet />
+        </div>
+        
       </div>
     </main>
 

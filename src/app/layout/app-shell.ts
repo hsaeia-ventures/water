@@ -8,6 +8,7 @@ import { CaptureBottomSheetComponent } from '../capture/components/capture-botto
 import { CaptureSpotlightComponent } from '../capture/components/capture-spotlight/capture-spotlight';
 import { InboxBadgeComponent } from '../capture/components/inbox-badge/inbox-badge';
 import { SupabaseService } from '../core/services/supabase.service';
+import { SidebarComponent } from './sidebar/sidebar';
 
 @Component({
   selector: 'app-shell',
@@ -20,7 +21,8 @@ import { SupabaseService } from '../core/services/supabase.service';
     OmniFabComponent,
     CaptureBottomSheetComponent,
     CaptureSpotlightComponent,
-    InboxBadgeComponent
+    InboxBadgeComponent,
+    SidebarComponent
   ],
   templateUrl: './app-shell.html',
   styleUrl: './app-shell.css',

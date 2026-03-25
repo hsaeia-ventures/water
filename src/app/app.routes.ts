@@ -17,6 +17,18 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/auth/login.page')
   },
   {
+    path: 'organize',
+    canActivate: [authGuard],
+    children: [
+      { path: 'contexts', loadComponent: () => import('./pages/organize/contexts.page') },
+      { path: 'calendar', loadComponent: () => import('./pages/organize/calendar.page') },
+      { path: 'projects', loadComponent: () => import('./pages/organize/projects.page') },
+      { path: 'waiting', loadComponent: () => import('./pages/organize/waiting.page') },
+      { path: 'someday', loadComponent: () => import('./pages/organize/someday.page') },
+      { path: '', redirectTo: 'contexts', pathMatch: 'full' }
+    ]
+  },
+  {
     path: '**',
     redirectTo: ''
   }
