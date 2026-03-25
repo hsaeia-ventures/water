@@ -24,8 +24,11 @@ export class SupabaseService {
     });
   }
 
-  public async signIn(email: string) {
-    return this.supabase.auth.signInWithOtp({ email });
+  public async signInWithGoogle() {
+    return this.supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin }
+    });
   }
 
   public async signOut() {
