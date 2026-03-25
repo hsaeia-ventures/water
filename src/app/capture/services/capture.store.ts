@@ -21,6 +21,10 @@ export class CaptureStore {
 
   constructor() {
     this.loadAll();
+    
+    window.addEventListener('sync-down-complete', () => {
+      this.loadAll();
+    });
   }
 
   /**

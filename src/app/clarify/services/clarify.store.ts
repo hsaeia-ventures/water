@@ -1,5 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { GtdItem, GtdObjType, GtdStatus } from '../../core/models/gtd-item.model';
+import { GtdItem } from '../../core/models/gtd-item.model';
 import { IndexedDbService } from '../../core/services/indexed-db.service';
 import { SyncService } from '../../core/services/sync.service';
 import { generateId } from '../../core/utils/uuid.util';
@@ -11,7 +11,6 @@ export class ClarifyStore {
 
   private inboxItems = signal<GtdItem[]>([]);
   
-  // Patrón "Tarjetas apiladas": Siempre procesamos 1 solo a la vez.
   public currentItem = computed(() => {
     const items = this.inboxItems();
     return items.length > 0 ? items[0] : null;
@@ -59,6 +58,61 @@ export class ClarifyStore {
     });
 
     // 4. Sacar del inbox local
+    this.inboxItems.update(items => items.filter(i => i.id !== current.id));
+  }
+  
+  public async processAsProject(projectName: string, nextActionTitle: string) {
+    const current = this.currentItem();
+    if (!current) return;
+
+    const updatedProject: GtdItem = {
+      ...current,
+      type: 'project',
+      status: 'next_action',
+      title: projectName,
+      notes: `Original: ${current.title}`, // Referencia de donde vino
+      updated_at: new Date()
+    };
+
+    const newAction: GtdItem = {
+      id: generateId(),
+      user_id: current.user_id,
+      type: 'action',
+      status: 'next_action',
+      title: nextActionTitle,
+      parent_id: updatedProject.id,
+      ghost_tags: [],
+      created_at: new Date(),
+      updated_at: new Date()
+    } as GtdItem; // as GtdItem para evitar error de missing optional props
+
+    // Save locally
+    await this.db.put(this.db.STORE_GTD_ITEMS, updatedProject);
+    await this.db.put(this.db.STORE_GTD_ITEMS, newAction);
+
+    // Sync remote
+    await this.syncService.enqueueOperation({
+      id: generateId(),
+      entityType: 'gtd_items',
+      action: 'UPDATE',
+      payload: updatedProject
+    });
+    await this.syncService.enqueueOperation({
+      id: generateId(),
+      entityType: 'gtd_items',
+      action: 'INSERT',
+      payload: newAction
+    });
+
+    // Logging
+    await this.syncService.enqueueOperation({
+      id: generateId(),
+      entityType: 'usage_logs',
+      action: 'INSERT',
+      payload: { event_type: 'project_created', metadata: { item_id: current.id, projectTitle: projectName } }
+    });
+
+    // Update state
     this.inboxItems.update(items => items.filter(i => i.id !== current.id));
   }
 }

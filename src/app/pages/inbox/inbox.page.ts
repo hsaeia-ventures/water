@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { CaptureStore } from '../../capture/services/capture.store';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state';
 import { GhostTagsComponent } from '../../capture/components/ghost-tags/ghost-tags';
@@ -11,6 +12,7 @@ import { ButtonComponent } from '../../shared/components/button/button';
   standalone: true,
   imports: [
     CommonModule, 
+    RouterLink,
     EmptyStateComponent, 
     GhostTagsComponent, 
     RelativeTimePipe,

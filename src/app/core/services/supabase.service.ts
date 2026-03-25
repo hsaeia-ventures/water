@@ -24,6 +24,14 @@ export class SupabaseService {
     });
   }
 
+  public async signIn(email: string) {
+    return this.supabase.auth.signInWithOtp({ email });
+  }
+
+  public async signOut() {
+    return this.supabase.auth.signOut();
+  }
+
   get client() {
     return this.supabase;
   }
