@@ -25,10 +25,9 @@ export class SyncService {
   }
 
   async enqueueOperation(op: Omit<SyncOperation, 'timestamp'>) {
-    const fullOp: SyncOperation = {
-      ...op,
-      timestamp: new Date()
-    };
+    // El cast es necesario porque el spread pierde el narrowing del discriminante.
+    // El tipo en runtime es siempre correcto ya que el llamante garantiza el shape.
+    const fullOp = { ...op, timestamp: new Date() } as SyncOperation;
     await this.indexedDb.put(this.indexedDb.STORE_SYNC_QUEUE, fullOp);
     
     if (navigator.onLine) {
