@@ -3,6 +3,7 @@ import { AppShellComponent } from './app-shell';
 import { provideRouter, Router } from '@angular/router';
 import { SupabaseService } from '../core/services/supabase.service';
 import { IndexedDbService } from '../core/services/indexed-db.service';
+import { OrganizeStore } from '../organize/services/organize.store';
 import { signal } from '@angular/core';
 import { vi } from 'vitest';
 
@@ -24,6 +25,12 @@ describe('AppShellComponent', () => {
         provideRouter([]),
         { provide: SupabaseService, useValue: mockSupabase },
         { provide: IndexedDbService, useValue: mockIndexedDb },
+        { provide: OrganizeStore, useValue: {
+            contextsCount: signal(0),
+            unhealthyProjectCount: signal(0),
+            urgentWaitingCount: signal(0),
+            groupedByContext: signal([])
+        } },
       ],
     });
 
@@ -45,6 +52,12 @@ describe('AppShellComponent', () => {
         provideRouter([]),
         { provide: SupabaseService, useValue: mockSupabase },
         { provide: IndexedDbService, useValue: mockIndexedDb },
+        { provide: OrganizeStore, useValue: {
+            contextsCount: signal(0),
+            unhealthyProjectCount: signal(0),
+            urgentWaitingCount: signal(0),
+            groupedByContext: signal([])
+        } },
       ],
     });
 
