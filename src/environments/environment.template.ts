@@ -18,6 +18,6 @@
  */
 export const environment = {
   production: false, // Cambiar a `true` en environment.ts (producción)
-  supabaseUrl: 'https://TU_PROJECT_REF.supabase.co',
-  supabaseKey: 'TU_SUPABASE_ANON_KEY'
+  supabaseUrl: 'https://dyqjxsscthtsdsajzjet.supabase.co',
+  supabaseKey: 'sb_publishable_V3OdVDx8_vfLp4pMneCwxA_DB_C-v-r'
 };
