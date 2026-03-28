@@ -6,13 +6,16 @@ export const authGuard: CanActivateFn = async () => {
   const supabaseService = inject(SupabaseService);
   const router = inject(Router);
 
-  // Intentamos obtener la sesión directamente para no depender de que el signal ya se haya inicializado
-  const { data: { session } } = await supabaseService.client.auth.getSession();
+  // Usamos getUser() en lugar de getSession() para validar el JWT contra
+  // los servidores de Supabase en cada navegación protegida.
+  // Esto evita que un token expirado o comprometido almacenado localmente
+  // pueda conceder acceso (defensa en profundidad).
+  const { data: { user } } = await supabaseService.client.auth.getUser();
 
-  if (session) {
+  if (user) {
     return true;
   }
 
-  // Si no hay sesión, mandamos al login
+  // Si no hay usuario válido, mandamos al login
   return router.parseUrl('/auth/login');
 };
