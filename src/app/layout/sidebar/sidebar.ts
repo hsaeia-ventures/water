@@ -1,8 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { SupabaseService } from '../../core/services/supabase.service';
 import { IndexedDbService } from '../../core/services/indexed-db.service';
+import { OrganizeStore } from '../../organize/services/organize.store';
 
 @Component({
   selector: 'app-sidebar',
@@ -16,6 +17,9 @@ import { IndexedDbService } from '../../core/services/indexed-db.service';
       <a routerLink="/organize/contexts" routerLinkActive="bg-zinc-800/50 text-white" class="flex items-center gap-3 px-3 py-2 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.568 2.051a8 8 0 018.663 8.663m-5.467 4.135a5.5 5.5 0 0110.151 3.518m-14.864.884a4.5 4.5 0 017.348 2.046m2.522-8.487A3.5 3.5 0 0118 10a3.498 3.498 0 01.385-1.52m2.42-6.429a2.5 2.5 0 11-4.75 1.54 2.5 2.5 0 014.75-1.54zm-8.232 4.414A5.5 5.5 0 0111.455 3" /></svg>
         <span class="font-medium text-sm">Contextos</span>
+        @if (contextsCount() > 0) {
+          <span class="ml-auto bg-zinc-800 text-zinc-400 text-[10px] font-bold px-2 py-0.5 rounded-full">{{ contextsCount() }}</span>
+        }
       </a>
 
       <!-- Calendar -->
@@ -28,12 +32,18 @@ import { IndexedDbService } from '../../core/services/indexed-db.service';
       <a routerLink="/organize/projects" routerLinkActive="bg-zinc-800/50 text-white" class="flex items-center gap-3 px-3 py-2 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" /></svg>
         <span class="font-medium text-sm">Proyectos</span>
+        @if (unhealthyProjectCount() > 0) {
+          <span class="ml-auto bg-amber-500/10 text-amber-500 border border-amber-500/20 text-[10px] font-bold px-2 py-0.5 rounded-full" title="Proyectos sin próximas acciones">{{ unhealthyProjectCount() }}</span>
+        }
       </a>
 
       <!-- Waiting -->
       <a routerLink="/organize/waiting" routerLinkActive="bg-zinc-800/50 text-white" class="flex items-center gap-3 px-3 py-2 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
         <span class="font-medium text-sm">A la Espera</span>
+        @if (urgentWaitingCount() > 0) {
+          <span class="ml-auto bg-red-500/10 text-red-500 border border-red-500/20 text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.2)]" title="Elementos que superan los 7 días">{{ urgentWaitingCount() }}</span>
+        }
       </a>
 
       <!-- Someday -->
@@ -65,6 +75,14 @@ export class SidebarComponent {
   private supabase = inject(SupabaseService);
   private indexedDb = inject(IndexedDbService);
   private router = inject(Router);
+  public store = inject(OrganizeStore);
+
+  public contextsCount = computed(() => {
+    return this.store.groupedByContext().filter(g => g.context !== 'Sin contexto').length;
+  });
+
+  public unhealthyProjectCount = this.store.unhealthyProjectCount;
+  public urgentWaitingCount = this.store.urgentWaitingCount;
 
   async logout(): Promise<void> {
     try {

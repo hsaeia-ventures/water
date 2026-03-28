@@ -198,12 +198,12 @@ export class OrganizeStore {
   public async createSomedayItem(params: {
     title: string;
     notes?: string;
-    type?: 'reference' | 'action';
+    type?: 'reference' | 'action' | 'project';
   }): Promise<GtdItem> {
     const now = new Date();
     const item: GtdItem = {
       id: generateId(),
-      type: (params.type === 'reference' ? 'reference' : 'action') as GtdObjType,
+      type: (params.type || 'action') as GtdObjType,
       status: 'someday' as GtdStatus,
       title: params.title.trim(),
       notes: params.notes,
