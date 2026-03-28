@@ -43,3 +43,8 @@ __screenshots__/
 .DS_Store
 Thumbs.db
 pass.txt
+
+# Environment files with sensitive credentials (Supabase keys, etc.)
+# Use environment.template.ts as reference to create these files locally
+src/environments/environment.ts
+src/environments/environment.development.ts
