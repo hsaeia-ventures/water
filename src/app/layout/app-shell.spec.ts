@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/angular';
 import { AppShellComponent } from './app-shell';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { SupabaseService } from '../core/services/supabase.service';
 import { IndexedDbService } from '../core/services/indexed-db.service';
 import { signal } from '@angular/core';
@@ -40,13 +40,16 @@ describe('AppShellComponent', () => {
     mockSupabase.signOut.mockClear();
     mockIndexedDb.clearStore.mockClear();
 
-    await render(AppShellComponent, {
+    const { fixture } = await render(AppShellComponent, {
       providers: [
         provideRouter([]),
         { provide: SupabaseService, useValue: mockSupabase },
         { provide: IndexedDbService, useValue: mockIndexedDb },
       ],
     });
+
+    const router = fixture.debugElement.injector.get(Router);
+    const navigateSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
 
     const logoutBtns = screen.getAllByLabelText('Cerrar sesión');
     expect(logoutBtns.length).toBeGreaterThan(0);
@@ -58,5 +61,6 @@ describe('AppShellComponent', () => {
 
     expect(mockIndexedDb.clearStore).toHaveBeenCalledWith('gtd_items');
     expect(mockSupabase.signOut).toHaveBeenCalled();
+    expect(navigateSpy).toHaveBeenCalledWith(['/auth/login']);
   });
 });

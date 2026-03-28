@@ -70,7 +70,7 @@ export class SidebarComponent {
     try {
       await this.indexedDb.clearStore(this.indexedDb.STORE_GTD_ITEMS);
       await this.supabase.signOut();
-      await this.router.navigate(['/login']);
+      await this.router.navigate(['/auth/login']);
     } catch (e) {
       console.error('[Water] Error al cerrar sesión', e);
     }
