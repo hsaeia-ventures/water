@@ -10,6 +10,7 @@ import { CaptureSpotlightComponent } from '../capture/components/capture-spotlig
 import { InboxBadgeComponent } from '../capture/components/inbox-badge/inbox-badge';
 import { SupabaseService } from '../core/services/supabase.service';
 import { SidebarComponent } from './sidebar/sidebar';
+import { DialogComponent } from '../shared/components/dialog/dialog';
 
 @Component({
   selector: 'app-shell',
@@ -23,7 +24,8 @@ import { SidebarComponent } from './sidebar/sidebar';
     CaptureBottomSheetComponent,
     CaptureSpotlightComponent,
     InboxBadgeComponent,
-    SidebarComponent
+    SidebarComponent,
+    DialogComponent
   ],
   templateUrl: './app-shell.html',
   styleUrl: './app-shell.css',

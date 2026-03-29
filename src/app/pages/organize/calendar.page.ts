@@ -4,6 +4,7 @@ import { OrganizeStore } from '../../organize/services/organize.store';
 import { WeekStripComponent } from '../../organize/components/week-strip/week-strip';
 import { ItemMenuComponent, MenuAction } from '../../shared/components/item-menu/item-menu';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog';
+import { DialogService } from '../../core/services/dialog.service';
 import { GtdItem } from '../../core/models/gtd-item.model';
 
 @Component({
@@ -137,6 +138,7 @@ import { GtdItem } from '../../core/models/gtd-item.model';
 })
 export default class CalendarPage {
   private store = inject(OrganizeStore);
+  private dialog = inject(DialogService);
   
   @ViewChild('deleteDialog') deleteDialog!: ConfirmDialogComponent;
   
@@ -215,43 +217,62 @@ export default class CalendarPage {
   }
 
   async createEvent() {
-    const title = window.prompt('Título del evento:');
-    if (!title || !title.trim()) return;
+    const title = await this.dialog.prompt({
+      title: 'Nuevo Evento',
+      message: 'Ponle un nombre a este compromiso sagrado.',
+      placeholder: 'Ej: Reunión con el equipo...'
+    });
+    if (!title) return;
 
     let scheduledDate = this.selectedDate() ? new Date(this.selectedDate()!) : new Date();
-    
-    const timeStr = window.prompt('Hora (HH:MM)? (Deja en blanco o cancela para "todo el día"):');
-    if (timeStr && timeStr.includes(':')) {
-       const [h, m] = timeStr.trim().split(':');
-       scheduledDate.setHours(parseInt(h), parseInt(m), 0, 0);
-    } else {
-       scheduledDate.setHours(0, 0, 0, 0);
-    }
-    
-    await this.store.createCalendarEvent({
-      title: title.trim(),
-      scheduledDate
+
+    const timeStr = await this.dialog.prompt({
+      title: '¿A qué hora?',
+      message: 'Déjalo en blanco y acepta para marcarlo como «Todo el día».',
+      inputType: 'time',
+      placeholder: 'HH:MM',
+      confirmLabel: 'Crear Evento',
+      cancelLabel: 'Todo el día'
     });
+    if (timeStr && timeStr.includes(':')) {
+      const [h, m] = timeStr.trim().split(':');
+      scheduledDate.setHours(parseInt(h), parseInt(m), 0, 0);
+    } else {
+      scheduledDate.setHours(0, 0, 0, 0);
+    }
+
+    await this.store.createCalendarEvent({ title, scheduledDate });
   }
 
   async onEventMenu(menuAction: MenuAction, event: GtdItem) {
     if (menuAction.id === 'edit') {
-      const newTitle = window.prompt('Nuevo título:', event.title);
-      if (newTitle && newTitle.trim()) {
-        await this.store.updateItem(event.id, { title: newTitle.trim() });
+      const newTitle = await this.dialog.prompt({
+        title: 'Editar Evento',
+        defaultValue: event.title,
+        placeholder: 'Título del evento...'
+      });
+      if (newTitle) {
+        await this.store.updateItem(event.id, { title: newTitle });
       }
     } else if (menuAction.id === 'reschedule') {
-      // Very basic MVP reschedule
-      const newDateStr = window.prompt('Nueva fecha (YYYY-MM-DD):', event.scheduled_date ? new Date(event.scheduled_date).toISOString().split('T')[0] : '');
+      const currentDate = event.scheduled_date
+        ? new Date(event.scheduled_date).toISOString().split('T')[0]
+        : new Date().toISOString().split('T')[0];
+      const newDateStr = await this.dialog.prompt({
+        title: 'Reprogramar Evento',
+        message: 'Elige la nueva fecha para este compromiso.',
+        inputType: 'date',
+        defaultValue: currentDate,
+        confirmLabel: 'Reprogramar'
+      });
       if (newDateStr) {
         const d = new Date(newDateStr);
         if (!isNaN(d.getTime())) {
-          // Keep previous time if it existed
           if (this.hasTime(event)) {
-             const old = new Date(event.scheduled_date!);
-             d.setHours(old.getHours(), old.getMinutes(), 0, 0);
+            const old = new Date(event.scheduled_date!);
+            d.setHours(old.getHours(), old.getMinutes(), 0, 0);
           } else {
-             d.setHours(0,0,0,0);
+            d.setHours(0, 0, 0, 0);
           }
           await this.store.updateItem(event.id, { scheduled_date: d });
         }

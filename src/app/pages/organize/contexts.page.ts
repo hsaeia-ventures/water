@@ -4,6 +4,7 @@ import { OrganizeStore, GroupedActions } from '../../organize/services/organize.
 import { InlineCaptureComponent } from '../../shared/components/inline-capture/inline-capture';
 import { ItemMenuComponent, MenuAction } from '../../shared/components/item-menu/item-menu';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog';
+import { DialogService } from '../../core/services/dialog.service';
 import { GtdItem } from '../../core/models/gtd-item.model';
 
 @Component({
@@ -174,6 +175,7 @@ import { GtdItem } from '../../core/models/gtd-item.model';
 })
 export default class ContextsPage {
   private store = inject(OrganizeStore);
+  private dialog = inject(DialogService);
   
   @ViewChild('deleteDialog') deleteDialog!: ConfirmDialogComponent;
   
@@ -215,17 +217,25 @@ export default class ContextsPage {
     });
   }
 
-  onMenuAction(menuAction: MenuAction, item: GtdItem) {
+  async onMenuAction(menuAction: MenuAction, item: GtdItem) {
     switch (menuAction.id) {
       case 'edit':
-        const newTitle = window.prompt('Editar acción:', item.title);
-        if (newTitle && newTitle.trim()) {
-          this.store.updateItem(item.id, { title: newTitle.trim() });
+        const newTitle = await this.dialog.prompt({
+          title: 'Editar acción',
+          defaultValue: item.title,
+          placeholder: 'Título de la acción...'
+        });
+        if (newTitle) {
+          this.store.updateItem(item.id, { title: newTitle });
         }
         break;
       case 'calendar':
-        // For MVP, we just prompt for a date string and parse it, or just use tomorrow as default
-        const dateInput = window.prompt('Agendar para (YYYY-MM-DD):', new Date().toISOString().split('T')[0]);
+        const dateInput = await this.dialog.prompt({
+          title: 'Mover al Calendario',
+          message: 'Selecciona la fecha para este compromiso.',
+          inputType: 'date',
+          defaultValue: new Date().toISOString().split('T')[0]
+        });
         if (dateInput) {
           const d = new Date(dateInput);
           if (!isNaN(d.getTime())) {

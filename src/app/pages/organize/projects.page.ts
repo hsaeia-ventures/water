@@ -4,6 +4,7 @@ import { OrganizeStore, ProjectWithActions } from '../../organize/services/organ
 import { InlineCaptureComponent } from '../../shared/components/inline-capture/inline-capture';
 import { ItemMenuComponent, MenuAction } from '../../shared/components/item-menu/item-menu';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog';
+import { DialogService } from '../../core/services/dialog.service';
 import { GtdItem } from '../../core/models/gtd-item.model';
 
 @Component({
@@ -169,6 +170,7 @@ import { GtdItem } from '../../core/models/gtd-item.model';
 })
 export default class ProjectsPage {
   private store = inject(OrganizeStore);
+  private dialog = inject(DialogService);
   
   @ViewChild('deleteDialog') deleteDialog!: ConfirmDialogComponent;
   
@@ -188,6 +190,7 @@ export default class ProjectsPage {
   ];
 
   private projectToDelete: ProjectWithActions | null = null;
+  private actionToDelete: GtdItem | null = null;
 
   toggleExpand(id: string) {
     this.expandedIds.update(set => {
@@ -199,19 +202,27 @@ export default class ProjectsPage {
   }
 
   async createProject() {
-    const title = window.prompt('Nombre del nuevo proyecto:');
-    if (title && title.trim()) {
-      const p = await this.store.createProject(title.trim());
-      // Auto expand to allow adding actions
+    const title = await this.dialog.prompt({
+      title: 'Nuevo Proyecto',
+      message: 'Los proyectos son metas que requieren más de un paso.',
+      placeholder: 'Nombre del proyecto...',
+      confirmLabel: 'Crear Proyecto'
+    });
+    if (title) {
+      const p = await this.store.createProject(title);
       this.expandedIds.update(set => new Set(set).add(p.id));
     }
   }
 
   async onProjectMenu(menuAction: MenuAction, project: ProjectWithActions) {
     if (menuAction.id === 'edit') {
-      const newTitle = window.prompt('Nuevo título:', project.title);
-      if (newTitle && newTitle.trim()) {
-        await this.store.updateItem(project.id, { title: newTitle.trim() });
+      const newTitle = await this.dialog.prompt({
+        title: 'Editar Proyecto',
+        defaultValue: project.title,
+        placeholder: 'Título del proyecto...'
+      });
+      if (newTitle) {
+        await this.store.updateItem(project.id, { title: newTitle });
       }
     } else if (menuAction.id === 'someday') {
       await this.store.updateItem(project.id, { status: 'someday' });
@@ -246,14 +257,17 @@ export default class ProjectsPage {
 
   async onActionMenu(menuAction: MenuAction, action: GtdItem) {
     if (menuAction.id === 'edit') {
-      const newTitle = window.prompt('Nuevo título:', action.title);
-      if (newTitle && newTitle.trim()) {
-        await this.store.updateItem(action.id, { title: newTitle.trim() });
+      const newTitle = await this.dialog.prompt({
+        title: 'Editar Acción',
+        defaultValue: action.title,
+        placeholder: 'Título de la acción...'
+      });
+      if (newTitle) {
+        await this.store.updateItem(action.id, { title: newTitle });
       }
     } else if (menuAction.id === 'delete') {
-      if (confirm('¿Eliminar acción permanentemente?')) {
-        await this.store.deleteItem(action.id);
-      }
+      this.actionToDelete = action;
+      this.deleteDialog.open();
     }
   }
 }
