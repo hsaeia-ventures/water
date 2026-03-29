@@ -5,6 +5,7 @@ import { RelativeTimePipe } from '../../shared/pipes/relative-time.pipe';
 import { InlineCaptureComponent } from '../../shared/components/inline-capture/inline-capture';
 import { ItemMenuComponent, MenuAction } from '../../shared/components/item-menu/item-menu';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog';
+import { DialogService } from '../../core/services/dialog.service';
 import { GtdItem } from '../../core/models/gtd-item.model';
 
 @Component({
@@ -120,6 +121,7 @@ import { GtdItem } from '../../core/models/gtd-item.model';
 })
 export default class SomedayPage {
   private store = inject(OrganizeStore);
+  private dialog = inject(DialogService);
   
   @ViewChild('deleteDialog') deleteDialog!: ConfirmDialogComponent;
 
@@ -153,9 +155,13 @@ export default class SomedayPage {
 
   async onMenuAction(menuAction: MenuAction, item: GtdItem) {
     if (menuAction.id === 'edit') {
-      const newTitle = window.prompt('Nuevo título:', item.title);
-      if (newTitle && newTitle.trim()) {
-        await this.store.updateItem(item.id, { title: newTitle.trim() });
+      const newTitle = await this.dialog.prompt({
+        title: 'Editar Título',
+        defaultValue: item.title,
+        placeholder: item.type === 'project' ? 'Nombre del proyecto futuro...' : 'Tu idea...'
+      });
+      if (newTitle) {
+        await this.store.updateItem(item.id, { title: newTitle });
       }
     } else if (menuAction.id === 'delete') {
       this.itemToDelete = item;

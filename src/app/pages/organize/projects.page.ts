@@ -141,13 +141,22 @@ import { GtdItem } from '../../core/models/gtd-item.model';
       </div>
     </div>
 
-    <!-- Confirm dialog for deletion -->
+    <!-- Confirm dialog for project deletion -->
     <app-confirm-dialog
       #deleteDialog
       title="¿Eliminar proyecto?"
       message="Se moverá a la papelera junto con todas sus acciones dependientes. Esta acción no se puede deshacer."
       confirmLabel="Eliminar"
       (confirmed)="confirmDeleteProject()"
+    />
+
+    <!-- Confirm dialog for action deletion -->
+    <app-confirm-dialog
+      #deleteActionDialog
+      title="¿Eliminar acción?"
+      message="La acción se eliminará permanentemente de este proyecto."
+      confirmLabel="Eliminar"
+      (confirmed)="confirmDeleteAction()"
     />
   `,
   styles: [`
@@ -173,6 +182,7 @@ export default class ProjectsPage {
   private dialog = inject(DialogService);
   
   @ViewChild('deleteDialog') deleteDialog!: ConfirmDialogComponent;
+  @ViewChild('deleteActionDialog') deleteActionDialog!: ConfirmDialogComponent;
   
   public projects = this.store.projectsWithActionCount;
 
@@ -267,7 +277,14 @@ export default class ProjectsPage {
       }
     } else if (menuAction.id === 'delete') {
       this.actionToDelete = action;
-      this.deleteDialog.open();
+      this.deleteActionDialog.open();
+    }
+  }
+
+  async confirmDeleteAction() {
+    if (this.actionToDelete) {
+      await this.store.deleteItem(this.actionToDelete.id);
+      this.actionToDelete = null;
     }
   }
 }
