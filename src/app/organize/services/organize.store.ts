@@ -115,6 +115,11 @@ export class OrganizeStore {
     };
   });
 
+  /** Proyectos sin acciones (para auditoría). */
+  public readonly unhealthyProjects = computed(() =>
+    this.projectsWithActionCount().filter(p => !p.isHealthy)
+  );
+
   /** Count de proyectos sin acciones (para badge en sidebar). */
   public readonly unhealthyProjectCount = computed(() =>
     this.projectsWithActionCount().filter(p => !p.isHealthy).length

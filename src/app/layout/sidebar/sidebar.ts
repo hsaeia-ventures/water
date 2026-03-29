@@ -51,6 +51,16 @@ import { OrganizeStore } from '../../organize/services/organize.store';
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" /></svg>
         <span class="font-medium text-sm">Incubadora</span>
       </a>
+
+      <!-- Reflection -->
+      <div class="text-xs font-semibold text-zinc-500 uppercase tracking-wider mt-6 mb-2 px-3">Perspectiva</div>
+      <a routerLink="/reflect" routerLinkActive="bg-zinc-800/50 text-white" class="flex items-center gap-3 px-3 py-2 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors group">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-amber-500/60 group-hover:text-amber-400 transition-colors"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M3 12h2.25m.386-6.364l1.591 1.591M16.5 12a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" /></svg>
+        <div class="flex flex-col">
+          <span class="font-medium text-sm">Revisar</span>
+          <span class="text-[10px] text-zinc-500 group-hover:text-zinc-400 transition-colors">Semanal & Salud</span>
+        </div>
+      </a>
       
       <!-- Spacer -->
       <div class="flex-1"></div>

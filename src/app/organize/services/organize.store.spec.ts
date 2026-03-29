@@ -79,6 +79,8 @@ describe('OrganizeStore', () => {
     expect(pB?.isHealthy).toBe(false);
     
     expect(store.unhealthyProjectCount()).toBe(1);
+    expect(store.unhealthyProjects().length).toBe(1);
+    expect(store.unhealthyProjects()[0].id).toBe(pB?.id);
   });
 
   it('should soft-delete item', async () => {
