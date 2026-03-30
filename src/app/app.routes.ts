@@ -29,6 +29,11 @@ export const routes: Routes = [
     ]
   },
   {
+    path: 'reflect',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/reflect/reflect.page').then(m => m.ReflectPage)
+  },
+  {
     path: '**',
     redirectTo: ''
   }
