@@ -43,6 +43,6 @@ describe('MemoryVaultComponent', () => {
     mockOrganize.somedayItems.set([]);
     fixture.detectChanges();
     const p = fixture.nativeElement.querySelector('p');
-    expect(p.textContent).toContain('Bóveda de recuerdos está vacía');
+    expect(p.textContent).toContain('Tu bóveda de recuerdos está vacía');
   });
 });

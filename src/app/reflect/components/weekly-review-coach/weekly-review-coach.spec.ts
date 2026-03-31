@@ -62,8 +62,9 @@ describe('WeeklyReviewCoachComponent', () => {
   });
 
   it('should navigate forward', () => {
-    const nextButton = fixture.nativeElement.querySelectorAll('button')[2]; // Siguiente
-    nextButton.click();
+    const buttons = Array.from(fixture.nativeElement.querySelectorAll('button')) as HTMLButtonElement[];
+    const nextButton = buttons.find(b => b.textContent?.includes('Siguiente'));
+    nextButton!.click();
     expect(mockReflect.nextStep).toHaveBeenCalled();
   });
 

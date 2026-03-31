@@ -6,6 +6,9 @@ import { WeeklyReviewCoachComponent } from '../../reflect/components/weekly-revi
 import { signal } from '@angular/core';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+import { OrganizeStore } from '../../organize/services/organize.store';
+import { CaptureStore } from '../../capture/services/capture.store';
+
 describe('ReflectPage', () => {
   let component: ReflectPage;
   let fixture: ComponentFixture<ReflectPage>;
@@ -17,13 +20,29 @@ describe('ReflectPage', () => {
     mockReflect = {
       isZenMode: zenSignal,
       toggleZenMode: vi.fn(),
-      systemConfidence: signal(100)
+      systemConfidence: signal(100),
+      currentStep: signal('clear_minds'),
+      reviewSteps: ['clear_minds'],
+      currentStepIndex: signal(0)
+    };
+
+    const mockOrganize = {
+      upcomingEvents: signal({ past: [], today: [], future: [] }),
+      unhealthyProjects: signal([]),
+      somedayItems: signal([])
+    };
+
+    const mockCapture = {
+      items: signal([]),
+      inboxCount: signal(0)
     };
 
     await TestBed.configureTestingModule({
       imports: [ReflectPage, ConfidenceBarComponent, WeeklyReviewCoachComponent],
       providers: [
-        { provide: ReflectStore, useValue: mockReflect }
+        { provide: ReflectStore, useValue: mockReflect },
+        { provide: OrganizeStore, useValue: mockOrganize },
+        { provide: CaptureStore, useValue: mockCapture }
       ]
     }).compileComponents();
 
