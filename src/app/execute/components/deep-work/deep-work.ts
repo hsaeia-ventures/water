@@ -99,10 +99,8 @@ export class DeepWorkComponent {
   public showConfetti = signal(false);
 
   // Calcula progreso del anillo entre 0.0 y 1.0 (asumiendo 30m default para el total si no hay otro, o sacando proporción)
-  // Simplificado: calculamos progreso en base a la diferencia entre el total y el actual.
   public timerProgress = computed(() => {
-    // Si tiempo es > 0, usar 30 mins como max (1800 seg) sólo para el diseño visual, o usar el max seteado
-    const max = 1800;
+    const max = 1800; // 30 mins as max visual
     const current = this.seconds();
     return Math.max(0, Math.min(1, current / max));
   });
@@ -126,7 +124,6 @@ export class DeepWorkComponent {
     if (!this.task()) return;
     this.isCompleting.set(true);
 
-    // Mostar confeti
     this.showConfetti.set(true);
 
     // Marcar completado en organizeStore
@@ -137,6 +134,6 @@ export class DeepWorkComponent {
       this.showConfetti.set(false);
       this.isCompleting.set(false);
       this.exitDeepWork();
-    }, 2500); // 2.5s magia
+    }, 2500); 
   }
 }

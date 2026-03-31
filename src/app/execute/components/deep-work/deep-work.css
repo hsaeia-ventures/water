@@ -1,0 +1,82 @@
+/* Confetti CSS variables & animations */
+:root {
+  --confetti-colors: #ff0a54, #ff477e, #ff7096, #ff85a1, #fbb1bd, #f9bec7, #ffe5ec;
+}
+
+.confetti-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.confetti {
+  position: absolute;
+  width: 10px;
+  height: 20px;
+  background-color: #ff0a54; /* Fallback */
+  opacity: 0;
+  animation: confetti-fall 2.5s ease-out forwards;
+}
+
+/* Pseudo random positions & colors for 20 pieces via nth-child */
+.confetti:nth-child(1) { left: 10%; background-color: #ff0a54; animation-delay: 0.1s; animation-duration: 2.2s; }
+.confetti:nth-child(2) { left: 25%; background-color: #ff477e; animation-delay: 0.2s; animation-duration: 2.8s; }
+.confetti:nth-child(3) { left: 40%; background-color: #ff7096; animation-delay: 0s; animation-duration: 2.4s; }
+.confetti:nth-child(4) { left: 55%; background-color: #ff85a1; animation-delay: 0.3s; animation-duration: 2.9s; }
+.confetti:nth-child(5) { left: 70%; background-color: #fbb1bd; animation-delay: 0.1s; animation-duration: 2.1s; }
+.confetti:nth-child(6) { left: 85%; background-color: #fce38a; animation-delay: 0.4s; animation-duration: 2.6s; }
+.confetti:nth-child(7) { left: 15%; background-color: #fce38a; animation-delay: 0.15s; animation-duration: 2.3s; }
+.confetti:nth-child(8) { left: 30%; background-color: #eaffbf; animation-delay: 0.25s; animation-duration: 2.7s; }
+.confetti:nth-child(9) { left: 45%; background-color: #95e1d3; animation-delay: 0.05s; animation-duration: 2.5s; }
+.confetti:nth-child(10) { left: 60%; background-color: #eaffbf; animation-delay: 0.35s; animation-duration: 3.0s; }
+.confetti:nth-child(11) { left: 75%; background-color: #95e1d3; animation-delay: 0.15s; animation-duration: 2.2s; }
+.confetti:nth-child(12) { left: 90%; background-color: #fce38a; animation-delay: 0.45s; animation-duration: 2.7s; }
+.confetti:nth-child(13) { left: 5%; background-color: #ff0a54; animation-delay: 0.2s; animation-duration: 2.4s; }
+.confetti:nth-child(14) { left: 20%; background-color: #ff477e; animation-delay: 0.3s; animation-duration: 2.9s; }
+.confetti:nth-child(15) { left: 35%; background-color: #ff7096; animation-delay: 0.1s; animation-duration: 2.5s; }
+.confetti:nth-child(16) { left: 50%; background-color: #ff85a1; animation-delay: 0.4s; animation-duration: 3.0s; }
+.confetti:nth-child(17) { left: 65%; background-color: #fbb1bd; animation-delay: 0.2s; animation-duration: 2.3s; }
+.confetti:nth-child(18) { left: 80%; background-color: #fce38a; animation-delay: 0.5s; animation-duration: 2.8s; }
+.confetti:nth-child(19) { left: 95%; background-color: #eaffbf; animation-delay: 0.1s; animation-duration: 2.4s; }
+.confetti:nth-child(20) { left: 50%; background-color: #95e1d3; animation-delay: 0.0s; animation-duration: 2.1s; }
+
+@keyframes confetti-fall {
+  0% {
+    opacity: 1;
+    transform: translateY(-50px) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(100vh) rotate(720deg);
+  }
+}
+
+/* Base animations for view */
+.animate-fade-in {
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0; 
+    transform: translateY(20px) scale(0.98);
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0) scale(1);
+  }
+}
