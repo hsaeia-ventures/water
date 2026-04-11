@@ -294,6 +294,7 @@ export class OrganizeStore {
 
   /** Registra un seguimiento en un ítem de A la Espera (actualiza timestamp). */
   public async registerFollowUp(id: string): Promise<void> {
-    await this.updateItem(id, { updated_at: new Date() });
+    await this.updateItem(id, { followed_up_at: new Date() });
   }
 }
+

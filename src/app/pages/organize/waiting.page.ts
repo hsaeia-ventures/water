@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { OrganizeStore } from '../../organize/services/organize.store';
 import { RelativeTimePipe } from '../../shared/pipes/relative-time.pipe';
 import { GtdItem } from '../../core/models/gtd-item.model';
+import { ToastService } from '../../core/services/toast.service';
+import { HapticService } from '../../core/services/haptic.service';
 
 @Component({
   selector: 'app-waiting-page',
@@ -50,9 +52,9 @@ import { GtdItem } from '../../core/models/gtd-item.model';
               <!-- Actions/Footer -->
               <div class="mt-4 flex flex-wrap gap-2 items-center justify-between border-t border-zinc-800/50 pt-4">
                 <span class="text-xs text-zinc-500 flex items-center gap-1">
-                  @if (task.updated_at > task.created_at) {
+                  @if (task.followed_up_at) {
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3 h-3"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-13a.75.75 0 00-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 000-1.5h-3.25V5z" clip-rule="evenodd" /></svg>
-                    Último toque: hace {{ task.updated_at | relativeTime }}
+                    Último toque: hace {{ task.followed_up_at | relativeTime }}
                   }
                 </span>
 
@@ -101,6 +103,8 @@ import { GtdItem } from '../../core/models/gtd-item.model';
 })
 export default class WaitingPage {
   private store = inject(OrganizeStore);
+  private toast = inject(ToastService);
+  private haptic = inject(HapticService);
   public waitingTasks = this.store.waitingActions;
 
   private getAgeInDays(dateStr: Date | string): number {
@@ -125,6 +129,8 @@ export default class WaitingPage {
 
   async ping(task: GtdItem) {
     await this.store.registerFollowUp(task.id);
+    this.haptic.success();
+    this.toast.show('Toque registrado al delegado', 'success');
   }
 
   async markReceived(task: GtdItem) {
